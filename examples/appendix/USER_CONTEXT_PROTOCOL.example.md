@@ -116,6 +116,6 @@ Memory + wire  →  UI/copy  →  Code/feature
 
 | Anti-pattern | Why |
 |--------------|-----|
-| **Creating template docs** | Loop = one real `+#` in **existing** chain — §9 hard law; never expand `templates/NIGHTRAVEN_IMPROVEMENT_LOOP_CYCLE_PROMPT.md` |
+| **Creating template docs** | Loop = one real `+#` in **existing** chain — §9 hard law; never expand `docs/NIGHTRAVEN_IMPROVEMENT_LOOP_CYCLE_PROMPT.md` |
 | **Serial doc-hopping** | Parallel-read disjoint paths; one canonical table per concept (router/overlay point) |
 | **Duplicating Agent card rows** | Single canonical table in router § Agent card |

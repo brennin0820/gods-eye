@@ -6,6 +6,20 @@ Append-only (`+#`). Corrections use **Supersedes** lines — never delete histor
 
 ## 2026-07-02
 
+### Improvement Loop cycle — broken `templates/` path fixed to `docs/`
+
+- +# Brent **improve** — ran one NightRaven Improvement Loop cycle (Bible §9–§10): Tier C opened, five support audits ran, Architecture supplied the winning constraint (broken pointer)
+- +# Found: the Improvement Loop's own authoritative cycle prompt is at `docs/NIGHTRAVEN_IMPROVEMENT_LOOP_CYCLE_PROMPT.md`, but **9 citations across 5 files** — `docs/37_NIGHTRAVEN.md` (×6: §0 glance row, §6 anti-pattern table, §9 "Runnable automation" table, §9 direct-execution line, §9 hard-law table ×2, §10 AI-universe-form line), `AGENTS.md`, `docs/NIGHTRAVEN_PROJECT_INVENTORY.md`, and `examples/appendix/USER_CONTEXT_PROTOCOL.example.md` — still pointed at a nonexistent `templates/NIGHTRAVEN_IMPROVEMENT_LOOP_CYCLE_PROMPT.md`, including the cycle prompt's own self-reference (Cycle 0 read-list item 4, "this file")
+- +# Fixed all 9 occurrences to `docs/NIGHTRAVEN_IMPROVEMENT_LOOP_CYCLE_PROMPT.md` — mechanical path correction only, no semantic change; verified zero remaining `templates/NIGHTRAVEN_IMPROVEMENT_LOOP_CYCLE_PROMPT` hits repo-wide
+- +# **Deferred** (Architecture, second candidate): `docs/32_BIGBROTHER_OVERSIGHT.md` is cited in 4 files (`AGENTS.md`, `docs/37_NIGHTRAVEN.md`, `docs/NIGHTRAVEN_PROJECT_INVENTORY.md`, the cycle prompt's Cycle 0 read list) but has never existed in this repo — out of scope for one cycle (creating the doc is a multi-file/large-content task, not a "smallest durable step"; scoping the right fix — create vs. redirect vs. mark-not-yet-created — needs its own pass)
+- +# **Deferred** (Engineering, third candidate): overlay §1 row **"Nightrave core"** is missing the 'n' (should read "NightRaven Core") — cosmetic, low friction, lowest leverage of the three candidates found this cycle
+
+**Cross-links:** [`37_NIGHTRAVEN.md`](37_NIGHTRAVEN.md) §0 · §6 · §9 · §10 · [`AGENTS.md`](../AGENTS.md) · [`NIGHTRAVEN_PROJECT_INVENTORY.md`](NIGHTRAVEN_PROJECT_INVENTORY.md) · [`NIGHTRAVEN_IMPROVEMENT_LOOP_CYCLE_PROMPT.md`](NIGHTRAVEN_IMPROVEMENT_LOOP_CYCLE_PROMPT.md) · [`04_LEARNING_LOG.md`](04_LEARNING_LOG.md)
+
+---
+
+## 2026-07-02
+
 ### Forward roadmap — `docs/NIGHTRAVEN_ROADMAP.md`
 
 - +# Brent **generate next road map** (Plan Mode) — full memory-chain sweep wiring a 13-item repo-wide inventory into a whole-platform forward plan

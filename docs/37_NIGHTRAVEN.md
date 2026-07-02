@@ -63,7 +63,7 @@ Related: `docs/32_BIGBROTHER_OVERSIGHT.md`, `docs/35_FAST_START.md`, `docs/36_PR
 | **Memory laws?** | Always watches · Always learn · **`+#` only** · never `-#` · Supersedes for corrections |
 | **Session start?** | Always-on rule → **§0 Agent quick start** → overlay → router → handoff → `AGENTS.md` |
 | **Agent card?** | **§0 Agent quick start** — Before / During / After / Never in one table |
-| **Improve loop?** | `templates/NIGHTRAVEN_IMPROVEMENT_LOOP_CYCLE_PROMPT.md` — one `+#` step per cycle |
+| **Improve loop?** | `docs/NIGHTRAVEN_IMPROVEMENT_LOOP_CYCLE_PROMPT.md` — one `+#` step per cycle |
 | **Loop cycle types?** | **Improve · Concept · Context** — grow the framework, not only polish; still one `+#` step (§9 loop mode) |
 | **Execution default?** | **Always parallel** — decompose independent workstreams; serialize only when required (§2.4; doc 19) |
 | **Which rules apply?** | **§2.5** — match NightRaven depth to task size; align with `docs/26_USAGE_EFFICIENCY.md` read tiers |
@@ -563,7 +563,7 @@ Tier-0 lean repos may omit full BAIC bootstrap — point at master path and loca
 | Bootstrapping full 30+ master docs into every repo | Use tier-0 lean + pointers; see `docs/35_FAST_START.md` |
 | **Cross-repo app memory bleed** | Importing another app's handoff, paths, locks, AGENT_WORK_LOG, or transcript context into a new project — §2.6; doc 36 |
 | **Master handoff as target handoff** | Reading framework maintenance handoff as if it were a different app's state |
-| **Creating template docs** (loop or session default) | Misreads loop mode as template scaffolding — improvements belong in **existing** chain docs via `+#`; `templates/NIGHTRAVEN_IMPROVEMENT_LOOP_CYCLE_PROMPT.md` is optional reference only (§9 hard law) |
+| **Creating template docs** (loop or session default) | Misreads loop mode as template scaffolding — improvements belong in **existing** chain docs via `+#`; `docs/NIGHTRAVEN_IMPROVEMENT_LOOP_CYCLE_PROMPT.md` is optional reference only (§9 hard law) |
 | **Serializing by default** | Independent reads and workstreams should run in parallel per §2.4; serialize only when write scopes overlap or coupling requires one mental model |
 | **Per-app re-instruction of universal patterns** | Brent must not repeat "add X every session" when X is cross-app — promote to published standard + install defaults (§2.7) |
 | **Code before ship signal** | Implementing on exploratory Q&A without explicit **code it** / **implement** / **build** — §2.8 |
@@ -642,7 +642,7 @@ Each loop run audits **six perspectives** (Architecture, Engineering, Design/UX,
 
 | Artifact | Role |
 |----------|------|
-| **`templates/NIGHTRAVEN_IMPROVEMENT_LOOP_CYCLE_PROMPT.md`** | Authoritative cycle prompt + virtual team checklists + logging rules |
+| **`docs/NIGHTRAVEN_IMPROVEMENT_LOOP_CYCLE_PROMPT.md`** | Authoritative cycle prompt + virtual team checklists + logging rules |
 | Repo `.cursor/IMPROVEMENT_LOOP_CYCLE_PROMPT.md` (optional) | Thin pointer to master template + local append targets |
 
 **Start (Cursor chat):**
@@ -653,16 +653,16 @@ Each loop run audits **six perspectives** (Architecture, Engineering, Design/UX,
 
 Use `7d` for weekly, `/loop` alone for self-paced dynamic cadence, or run one cycle without `/loop`. Ask the agent to stop to kill the background ticker.
 
-**Direct execution (loop ticks — preferred):** Read **this document §9–§10** only. **Parallel by default** — parallel tool reads and read-only audit passes; one writer per file for the `+#` step. Tier C opens → five support audits → Tier C synthesis → **one** `+#` improvement → wire cross-links → append changelog / learning log / handoff. **`templates/NIGHTRAVEN_IMPROVEMENT_LOOP_CYCLE_PROMPT.md` is optional checklist reference** — do not expand or scaffold new template-like docs per cycle.
+**Direct execution (loop ticks — preferred):** Read **this document §9–§10** only. **Parallel by default** — parallel tool reads and read-only audit passes; one writer per file for the `+#` step. Tier C opens → five support audits → Tier C synthesis → **one** `+#` improvement → wire cross-links → append changelog / learning log / handoff. **`docs/NIGHTRAVEN_IMPROVEMENT_LOOP_CYCLE_PROMPT.md` is optional checklist reference** — do not expand or scaffold new template-like docs per cycle.
 
 ### Cycle law — no new template docs (hard law)
 
 | Rule | Detail |
 |------|--------|
-| **Forbidden default** | **No new template docs** per cycle or session — no new files under `templates/`, no new `*.md` scaffold/checklist copies, no expanding or duplicating `templates/NIGHTRAVEN_IMPROVEMENT_LOOP_CYCLE_PROMPT.md` |
+| **Forbidden default** | **No new template docs** per cycle or session — no new files under `templates/`, no new `*.md` scaffold/checklist copies, no expanding or duplicating `docs/NIGHTRAVEN_IMPROVEMENT_LOOP_CYCLE_PROMPT.md` |
 | **Brent override only** | Create or expand a template **only** when Brent explicitly says **"create template"** (or names a specific template file to add) |
 | **Where improvements go** | **Existing** docs only: doc 37, repo overlay, `.cursor/rules/*.mdc`, changelog, learning log, handoff **Recent sessions**, optional repo `.cursor/IMPROVEMENT_LOOP_CYCLE_PROMPT.md` pointer |
-| **Template role** | `templates/NIGHTRAVEN_IMPROVEMENT_LOOP_CYCLE_PROMPT.md` = **optional reference checklist** — read if helpful; never mandatory scaffolding; never duplicate into repo per tick |
+| **Template role** | `docs/NIGHTRAVEN_IMPROVEMENT_LOOP_CYCLE_PROMPT.md` = **optional reference checklist** — read if helpful; never mandatory scaffolding; never duplicate into repo per tick |
 
 Loop mode means **execute one real `+#` improvement** in the connected chain — not manufacture new template artifacts.
 
@@ -713,7 +713,7 @@ Portable NightRaven serves **human developers and agents working for humans**. T
 
 ### AI-universe form
 
-In NightRaven, Tier C is **formalized memory** — a checklist section in `templates/NIGHTRAVEN_IMPROVEMENT_LOOP_CYCLE_PROMPT.md`, a row in §9's virtual teams table, and this §10 definition. The loop agent embodies the tier each cycle; no separate subagent required.
+In NightRaven, Tier C is **formalized memory** — a checklist section in `docs/NIGHTRAVEN_IMPROVEMENT_LOOP_CYCLE_PROMPT.md`, a row in §9's virtual teams table, and this §10 definition. The loop agent embodies the tier each cycle; no separate subagent required.
 
 ### Default posture — Innovator leads (mandatory)
 

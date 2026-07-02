@@ -50,7 +50,7 @@ Read in order (skip missing files; note gaps as improvement candidates):
 1. Master `docs/37_NIGHTRAVEN.md` (§2.6 isolation + §5 cold start if auditing fast-load chain)
 2. Master `docs/35_FAST_START.md` + `docs/36_PROJECT_ISOLATION.md` (when cycle touches Tier 0 / new-project path)
 3. Master `docs/32_BIGBROTHER_OVERSIGHT.md` (relationship only)
-4. `templates/NIGHTRAVEN_IMPROVEMENT_LOOP_CYCLE_PROMPT.md` (this file)
+4. `docs/NIGHTRAVEN_IMPROVEMENT_LOOP_CYCLE_PROMPT.md` (this file)
 5. Active repo overlay if improving a bootstrapped repo (e.g. `docs/NIGHTRAVEN_REPO_OVERLAY.md`)
 6. Active repo router / always-on rule (e.g. `nightraven-context-intent.mdc`)
 7. Latest entries in master + repo `docs/02_ENGINEERING_CHANGELOG.md`, `docs/04_LEARNING_LOG.md`, handoff **Recent sessions**

@@ -82,7 +82,7 @@ Run `./scripts/scan-nightraven-projects.sh --markdown` to refresh this table:
 | **Focus** | Framework maintenance, doc 35–36 fast start/isolation, improvement loop template |
 | **Sync note** | When doc 37 changes here, **vendor or sync** into `Projects/nightraven/docs/37_NIGHTRAVEN.md` |
 
-**Key artifacts:** `docs/37_NIGHTRAVEN.md`, `docs/32_BIGBROTHER_OVERSIGHT.md`, `docs/35_FAST_START.md`, `docs/36_PROJECT_ISOLATION.md`, `templates/NIGHTRAVEN_IMPROVEMENT_LOOP_CYCLE_PROMPT.md`
+**Key artifacts:** `docs/37_NIGHTRAVEN.md`, `docs/32_BIGBROTHER_OVERSIGHT.md`, `docs/35_FAST_START.md`, `docs/36_PROJECT_ISOLATION.md`, `docs/NIGHTRAVEN_IMPROVEMENT_LOOP_CYCLE_PROMPT.md`
 
 **Not duplicated in nightraven repo:** Full `docs/01`–`08` BAIC chain — apps point here or vendor lean subset only.
 

@@ -226,7 +226,7 @@ When Brent gives a **concept, context, or idea** (even telegraphic) — infer: *
 - **Local vs Cloud execution:** `docs/NIGHTRAVEN_LOCAL_VS_CLOUD_EXECUTION.md` — LM Studio vs cloud frontier modes; model recommendations; agent rules by provider; LM Studio quickstart
 - **Research map (plan):** `.cursor/plans/nightraven_research_map_b4b6f06f.plan.md` — external field overlaps vs NightRaven differentiators; overlay §1 **Composed architecture** · **GIRMA**
 - **agent-skills merge (plan):** `.cursor/plans/agent-skills_merge_decision_7be1bdd7.plan.md` — reject core vendor; optional L4 implementation skills after ship signal; overlay §1 **Implementation skills pack (optional)** · [`CURSOR_INSTALL.md`](docs/CURSOR_INSTALL.md) optional post-install pointer · [`NIGHTRAVEN_UNIFIED_STACK.md`](docs/NIGHTRAVEN_UNIFIED_STACK.md) §2
-- **Improvement loop:** `templates/NIGHTRAVEN_IMPROVEMENT_LOOP_CYCLE_PROMPT.md` — cycle prompt, virtual teams, logging rules
+- **Improvement loop:** `docs/NIGHTRAVEN_IMPROVEMENT_LOOP_CYCLE_PROMPT.md` — cycle prompt, virtual teams, logging rules
 - **Division registry:** `docs/DIVISION_REGISTRY.md` — canonical division list, tool belts, SKILL.md paths, pipeline flow, known gaps
 - **Roadmap (forward-looking):** `docs/NIGHTRAVEN_ROADMAP.md` — Arc 1/2/3 whole-platform horizons; distinct from `NIGHTRAVEN_UNIFIED_STACK.md` §9 (adoption-phase roadmap for new adopters) and `apps/compass/docs/MVP_ROADMAP.md` (Compass build-phase roadmap only)
 - **BigBrother relationship:** `docs/32_BIGBROTHER_OVERSIGHT.md` — complementary BAIC oversight checklist

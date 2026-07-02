@@ -4,6 +4,16 @@ Durable patterns discovered in this repo. Append-only (`+#`).
 
 ---
 
+## 2026-07-02 — A doc's own authority table can cite its own dead path
+
+**Signal:** `docs/37_NIGHTRAVEN.md` §9 "Runnable automation" table described `templates/NIGHTRAVEN_IMPROVEMENT_LOOP_CYCLE_PROMPT.md` as the "authoritative cycle prompt" — but the real file has lived at `docs/NIGHTRAVEN_IMPROVEMENT_LOOP_CYCLE_PROMPT.md` this whole time. The wrong path propagated into 9 citations across 5 files, including the cycle prompt's own Cycle-0 read-list entry for itself ("this file").
+
+**Pattern:** When a doc moves (or was always misdocumented), a repo-wide grep for its old/wrong path is cheap and catches every stale citation in one pass — including self-references, which are easy to miss because an agent reading the file in place never notices its own citation of itself is wrong. Worth running whenever a doc's location is uncertain, not just after a deliberate rename: this file was apparently never actually at `templates/` — the wrong path may predate any move at all.
+
+**See:** [`02_ENGINEERING_CHANGELOG.md`](02_ENGINEERING_CHANGELOG.md) 2026-07-02 · [`NIGHTRAVEN_IMPROVEMENT_LOOP_CYCLE_PROMPT.md`](NIGHTRAVEN_IMPROVEMENT_LOOP_CYCLE_PROMPT.md) · Bible §9 "Runnable automation"
+
+---
+
 ## 2026-07-02 — Roadmap docs need an explicit disambiguation section or they collide silently
 
 **Signal:** This repo already had two roadmap-shaped docs before a whole-platform one was needed — `NIGHTRAVEN_UNIFIED_STACK.md` §9 "Phased roadmap" (adoption phases for a *new adopter repo* bootstrapping NightRaven itself) and `apps/compass/docs/MVP_ROADMAP.md` (Compass's own app build phases). Neither doc's title, nor a cross-link buried at the bottom, signals its narrow scope to a reader or agent skimming file names.

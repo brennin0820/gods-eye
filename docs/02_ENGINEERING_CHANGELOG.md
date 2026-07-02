@@ -4,6 +4,28 @@ Append-only (`+#`). Corrections use **Supersedes** lines — never delete histor
 
 ---
 
+## 2026-07-02
+
+### Repair + gap-fill batch (PR #4 branch)
+
+- +# Brent **repair and fill in the gaps** — redesign Q&A verdict was repair-not-redesign; batch on `claude/grab-concept-project-aex0sm`
+- +# **Repairs:** removed dangling `night-raven` submodule gitlink (missing object, no `.gitmodules`) · `session-stop.sh:75` `=`→`+=` — Unix stop hook silently discarded the entire Touch 3 follow-up message · bootstrap **seed guard** — skips overlay/handoff/quickstart/README rewrite when handoff has live memory (dated Recent sessions / Bootstrap milestone), `--force` to override; closes the script's own `-#` violation · Compass `parseHandoff.ts` `\Z` (not a JS anchor) → `(?![\s\S])` — last handoff section no longer truncates at first capital Z · GE→NightRaven user-facing copy in Compass (AppShell, SettingsPage, NotNowPage, ReportsPage, MemoryFeedPage, buildSnapshot strings) + `session-stop.sh`/`after-file-edit.sh` headers · `install.sh` self-identical dedupe regex → second branch now matches legacy `gods-eye/session-start.sh` · `lib.sh` secret denylist `.aws/*` parity with `lib.ps1` · `mcp-server/src/memory.ts` duplicate default candidate removed · `.gitignore` duplicate `apps/*` block deduped
+- +# **Gaps filled:** planner — DAG **cycle detection** (DFS, error finding per cycle) · `GrepTool` **glob honored** (basename vs path semantics) · **coverage gate un-inverted** (MVP scope = covered; warning only when empty) · **vitest** wired, `ReviewAgent` + `GrepTool` suites (7 tests pass) · `run:flow` → `tsx src/index.ts --approve` (was broken filename case, no runner) · Planner rows added to README + `apps/README.md` component tables · planner `AGENTS.md` directory map gains `src/tools/` · created [`35_FAST_START.md`](35_FAST_START.md) + [`36_PROJECT_ISOLATION.md`](36_PROJECT_ISOLATION.md) (phantom docs referenced since 2026-06-11) + [`USER_CONTEXT_PROTOCOL.md`](USER_CONTEXT_PROTOCOL.md) (16/16 scan artifacts) — all lean routers, law stays in Bible · [`DIVISION_REGISTRY.md`](DIVISION_REGISTRY.md) gap-status update table · handoff **Current state / focus** Supersedes block (stale "(uncommitted)")
+- +# **Verified:** `apps/planner` `npm run lint` + `npm test` (7/7) + `npm run run:flow` end-to-end PASS coverage 100 · `apps/compass` `npm run build` pass · `bash -n` on all touched scripts · node regex probe (mid + last section extraction)
+- +# **Not done (Phase 2, needs ship signal):** Builder TS agent · LLM dispatch loop
+
+**Cross-links:** [`DIVISION_REGISTRY.md`](DIVISION_REGISTRY.md) · [`14_SESSION_HANDOFF.md`](14_SESSION_HANDOFF.md) · [`04_LEARNING_LOG.md`](04_LEARNING_LOG.md) · [`35_FAST_START.md`](35_FAST_START.md) · [`36_PROJECT_ISOLATION.md`](36_PROJECT_ISOLATION.md) · [`USER_CONTEXT_PROTOCOL.md`](USER_CONTEXT_PROTOCOL.md)
+
+### NightRaven Unified Manifest — add + overlay wire
+
+- +# Brent **add or merge** — pasted **NightRaven Unified Manifest** (`version: 1`) added verbatim as [`examples/manifest/NIGHTRAVEN_UNIFIED_MANIFEST.example.yaml`](../examples/manifest/NIGHTRAVEN_UNIFIED_MANIFEST.example.yaml); no existing manifest/`.nightraven/` in repo → **add** + concept wire (not a merge target)
+- +# Manifest genre: orchestrator (divisions planning/builder/auditor · MEDIUM) · claim file `AGENT_WORK_LOG.md` · serialized protected paths (one agent per Swift file · single-stream `project.pbxproj`) · build/audit ledgers · `PARALLEL_RUN_STATUS.md` status doc · invoke blocks (Cursor agent + `/nightraven`) · no commit without user approval
+- +# First appearance of **LinenFlow** consumer app (Swift; instance manifest `.nightraven/linenflow-parallel.yaml` @ Mac `Developer/NightRaven`); registry root already covered by existing `nightraven-projects.conf` entry — no conf change
+
+**Cross-links:** [`NIGHTRAVEN_REPO_OVERLAY.md`](NIGHTRAVEN_REPO_OVERLAY.md) §1 · [`14_SESSION_HANDOFF.md`](14_SESSION_HANDOFF.md) · [`04_LEARNING_LOG.md`](04_LEARNING_LOG.md)
+
+---
+
 ## 2026-06-13
 
 ### Touch 3 AFTER — push close memory shipped (`52de8e5`)

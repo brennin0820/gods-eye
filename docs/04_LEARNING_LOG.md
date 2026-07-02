@@ -6,6 +6,38 @@ Durable patterns discovered in this repo. Append-only (`+#`).
 
 ---
 
+## 2026-07-02 — Fail-open hooks can mask message-building bugs
+
+**Signal:** `session-stop.sh:75` used `=` instead of `+=` — every carefully built Touch 3 instruction line was silently replaced by the closing one-liner, on every Unix stop, for weeks. Fail-open design meant nothing ever errored.
+
+**Pattern:** In fail-open infrastructure, a wrong-but-valid payload is invisible — no exit code, no log. When a hook builds a message incrementally (`message+=`), verify the **emitted payload**, not just `bash -n`: run the hook with sample stdin and eyeball the JSON. Same class: `\Z` in a JS regex (matches literal `Z`, no error), self-identical grep alternations (`a|a` — dedupe intent lost, no error). Lint catches broken; only output inspection catches wrong.
+
+**Mitigation:** After editing any hook/emitter, pipe a fixture through it and diff the output against intent. Add the check to the repair habit, not just to tests.
+
+**See:** [`02_ENGINEERING_CHANGELOG.md`](02_ENGINEERING_CHANGELOG.md) 2026-07-02 · `.cursor/hooks/session-stop.sh` · `apps/compass/server/parseHandoff.ts` · `install.sh`
+
+---
+
+## 2026-07-02 — Bootstrap tooling must obey the laws it installs
+
+**Signal:** `bootstrap-nightraven-project.sh` unconditionally rewrote overlay/handoff/README when they existed — re-running it on a live project would erase accumulated Recent sessions, violating the `+#`/never-`-#` law the script itself installs.
+
+**Pattern:** Detect "live memory" before seeding: a handoff containing dated `- **YYYY-MM-DD**` Recent-sessions lines or a `+# **Bootstrap**` milestone is live → skip all seed rewrites, require explicit `--force`. Fresh-from-template files (placeholder text only) are safe to seed. The framework's own automation is inside the law's jurisdiction — audit installers/bootstrappers against the memory laws like any agent.
+
+**See:** [`02_ENGINEERING_CHANGELOG.md`](02_ENGINEERING_CHANGELOG.md) 2026-07-02 · `scripts/bootstrap-nightraven-project.sh` · Bible §2.2–2.3
+
+---
+
+## 2026-07-02 — Unified Manifest genre (add or merge)
+
+**Signal:** Brent **add or merge** + pasted YAML — new orchestration-config genre; no prior manifest anywhere in repo.
+
+**Pattern:** "Add or merge" on pasted config → first check for an existing merge target (`.nightraven/`, YAML manifests — none found) → **add verbatim** under `examples/` (worked-instance convention, `.example` suffix, matches overlay/appendix examples) + one overlay §1 vocabulary row; no extra explainer scaffolds. The manifest formalizes existing law as machine-readable config: claim-before-edit (README no-conflict coordination), serialized protected files (one writer per file — Bible §2.4), append-only ledgers, no commit without approval (§2.8), status doc per stream. Consumer-repo paths (`Docs/` capital-D, Swift files) stay app-local; framework holds the worked example only (§2.6 — no app-memory bleed beyond the pointer).
+
+**See:** [`NIGHTRAVEN_REPO_OVERLAY.md`](NIGHTRAVEN_REPO_OVERLAY.md) §1 · [`02_ENGINEERING_CHANGELOG.md`](02_ENGINEERING_CHANGELOG.md) · `examples/manifest/`
+
+---
+
 ## 2026-06-13 — Touch 3 meta-close after push (`52de8e5`)
 
 **Signal:** Brent **`+#` only · stop`** immediately after **`commit` + `push`** of push-landed memory (`80b4e29` record).

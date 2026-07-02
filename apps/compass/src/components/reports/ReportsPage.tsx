@@ -55,7 +55,7 @@ export function ReportsPage() {
           </div>
         </div>
         <p className="card-copy">
-          Build, audit, handoff, learning, and scope summaries derived from loaded God&apos;s Eye
+          Build, audit, handoff, learning, and scope summaries derived from loaded NightRaven
           artifacts and current project state.
         </p>
         <div className="scope-stats">

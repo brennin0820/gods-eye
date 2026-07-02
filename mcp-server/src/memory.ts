@@ -118,7 +118,6 @@ export async function resolveNightRavenRoot(projectRoot: string): Promise<string
   const defaultCandidates = [
     path.join(process.env.HOME ?? "", "Developer/NightRaven/nightraven"),
     path.join(process.env.HOME ?? "", "Projects/nightraven"),
-    path.join(process.env.HOME ?? "", "Projects/nightraven"),
   ];
   for (const defaultRoot of defaultCandidates) {
     if (await fileExists(path.join(defaultRoot, "docs/37_NIGHTRAVEN.md"))) {

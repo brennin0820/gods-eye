@@ -19,7 +19,7 @@ export function NotNowPage() {
           </div>
         </div>
         <p className="card-copy">
-          From overlay boundaries and God&apos;s Eye defaults — do not build these yet.
+          From overlay boundaries and NightRaven defaults — do not build these yet.
         </p>
       </article>
 

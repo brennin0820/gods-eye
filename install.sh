@@ -133,7 +133,7 @@ merge_user_hooks_json() {
     log "created: ~/.cursor/hooks.json"
     return 0
   fi
-  if grep -qE 'nightraven/session-start\.sh|nightraven/session-start\.sh' "$user_hooks" 2>/dev/null; then
+  if grep -qE 'nightraven/session-start\.sh|gods-eye/session-start\.sh' "$user_hooks" 2>/dev/null; then
     warn "NightRaven hooks already present in ~/.cursor/hooks.json (skip merge)"
     return 0
   fi

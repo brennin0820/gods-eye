@@ -25,26 +25,55 @@ async function grepFile(file: string, re: RegExp, context: number): Promise<stri
   return results
 }
 
-async function walkGrep(dir: string, base: string, re: RegExp, context: number): Promise<string[]> {
+function globToRegExp(glob: string): RegExp {
+  const escaped = glob
+    .replace(/[.+^${}()|[\]\\]/g, '\\$&')
+    .replace(/\*\*\//g, '(?:.*/)?')
+    .replace(/\*\*/g, '.*')
+    .replace(/\*/g, '[^/]*')
+    .replace(/\?/g, '[^/]')
+  return new RegExp(`^${escaped}$`)
+}
+
+async function walkGrep(
+  dir: string,
+  base: string,
+  re: RegExp,
+  context: number,
+  fileMatch?: (rel: string) => boolean,
+): Promise<string[]> {
   const entries = await readdir(dir, { withFileTypes: true })
   const results: string[] = []
   for (const entry of entries) {
     if (entry.name.startsWith('.') || entry.name === 'node_modules') continue
     const full = join(dir, entry.name)
-    if (entry.isDirectory()) results.push(...await walkGrep(full, base, re, context))
-    else results.push(...await grepFile(relative(base, full), re, context).catch(() => []))
+    if (entry.isDirectory()) {
+      results.push(...await walkGrep(full, base, re, context, fileMatch))
+    } else {
+      const rel = relative(base, full)
+      if (fileMatch && !fileMatch(rel)) continue
+      results.push(...await grepFile(rel, re, context).catch(() => []))
+    }
   }
   return results
 }
 
 export class GrepTool extends AgentTool<z.infer<typeof schema>> {
   readonly name = 'grep'
-  readonly description = 'Search file contents with a regex pattern.'
+  readonly description = 'Search file contents with a regex pattern, optionally filtered by a filename glob.'
   readonly schema = schema
 
-  protected async _run({ pattern, path, context }: z.infer<typeof schema>) {
+  protected async _run({ pattern, path, glob, context }: z.infer<typeof schema>) {
     const re = new RegExp(pattern)
-    const matches = await walkGrep(path, path, re, context)
+    let fileMatch: ((rel: string) => boolean) | undefined
+    if (glob) {
+      const globRe = globToRegExp(glob)
+      // Patterns without a slash match against the basename (grep --include semantics)
+      fileMatch = glob.includes('/')
+        ? (rel) => globRe.test(rel)
+        : (rel) => globRe.test(rel.split('/').pop() ?? rel)
+    }
+    const matches = await walkGrep(path, path, re, context, fileMatch)
     return matches.length ? matches.slice(0, 200).join('\n') : '(no matches)'
   }
 }

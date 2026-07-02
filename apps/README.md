@@ -5,6 +5,7 @@ Application packages in the **NightRaven monorepo**. Each app keeps **its own ap
 | App | Path | Status |
 |-----|------|--------|
 | **NightRaven Compass** | [`compass/`](compass/) | Phase 1 dashboard (React/TS/Vite · mock data) |
+| **NightRaven Planner** | [`planner/`](planner/) | Foundation pipeline skeleton (TS · deterministic agents · LLM dispatch Phase 2) |
 
 **Run Compass:**
 

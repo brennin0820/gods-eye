@@ -12,6 +12,7 @@
 | **NightRaven** | Repo-native agent memory & oversight | This repo (framework root) |
 | **NightRaven Core** | Adaptive orchestration (`/nightraven`) | `.claude/skills/nightraven/` |
 | **NightRaven Compass** | Project guidance dashboard (Phase 1) | [`apps/compass/`](apps/compass/) |
+| **NightRaven Planner** | Multi-agent app foundation pipeline (Plan → Research → Architect → Review) | [`apps/planner/`](apps/planner/) |
 | **NightRaven app** | Consumer iOS app | External repo — monorepo merge pending |
 | **New consumer project** | Bootstrap script | `./scripts/bootstrap-nightraven-project.sh <Name> [path]` — e.g. **HimFLer** @ `E:\NightRaven\HimFLer` |
 

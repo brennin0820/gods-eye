@@ -72,7 +72,7 @@ function buildPhases(projectId: string, handoff: ReturnType<typeof parseHandoff>
       id: 'phase-memory',
       projectId,
       name: 'Memory & scope',
-      goal: 'God\'s Eye chain wired; product scope clear.',
+      goal: 'NightRaven chain wired; product scope clear.',
       order: 0,
       status: handoff.alreadyDoneCount > 5 ? 'done' : 'active',
       doneCriteria: ['Handoff exists', 'Overlay exists', 'Recent sessions updating'],
@@ -179,7 +179,7 @@ function buildNotNow(overlayLines: string[], projectId: string): NotNowItem[] {
   const defaults = [
     {
       title: 'Cross-repo memory bleed',
-      reasonDelayed: 'God\'s Eye §2.6 — this repo only.',
+      reasonDelayed: 'Bible §2.6 — this repo only.',
       earliestPhaseAllowed: 'Never',
       riskIfBuiltTooEarly: 'Wrong handoff drives wrong work.',
       revisitCondition: 'Never — use overlay boundaries.',
@@ -315,7 +315,7 @@ export function buildProjectSnapshot(
       severity: 'high',
       blockedTaskIds: tasks.map((task) => task.id),
       owner: 'nightraven',
-      resolutionNeeded: 'Bootstrap God\'s Eye or add handoff.',
+      resolutionNeeded: 'Bootstrap NightRaven or add handoff.',
       status: 'open',
     })
   }

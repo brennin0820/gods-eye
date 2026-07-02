@@ -19,7 +19,7 @@ export function SettingsPage() {
           </div>
         </div>
         <p className="card-copy">
-          Compass reads live God&apos;s Eye files via the Vite dev API (
+          Compass reads live NightRaven files via the Vite dev API (
           <code>scripts/nightraven-projects.conf</code>, handoff, overlay). Edits persist in
           IndexedDB and survive refresh. Production static builds fall back to seed + local
           overrides until served with the API middleware.
@@ -30,7 +30,7 @@ export function SettingsPage() {
           onClick={() => void refresh()}
           type="button"
         >
-          <RefreshCw size={14} aria-hidden="true" /> Refresh from God&apos;s Eye
+          <RefreshCw size={14} aria-hidden="true" /> Refresh from NightRaven
         </button>
       </article>
 
@@ -61,7 +61,7 @@ export function SettingsPage() {
                 type="checkbox"
               />
               <span className="settings-hint">
-                Polls God&apos;s Eye files every 10s in registry mode; pauses when tab is hidden.
+                Polls NightRaven files every 10s in registry mode; pauses when tab is hidden.
               </span>
             </label>
             <span>

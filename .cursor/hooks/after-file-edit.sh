@@ -1,5 +1,5 @@
 #!/usr/bin/env bash
-# Gods Eye Phase 2 — afterFileEdit
+# NightRaven Phase 2 — afterFileEdit
 # Soft nudge when memory-chain files change: +# only, consider exit writes.
 # Fast path: skip lib load when edit is outside memory-chain paths.
 

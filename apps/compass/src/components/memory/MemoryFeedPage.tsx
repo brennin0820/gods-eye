@@ -66,7 +66,7 @@ export function MemoryFeedPage() {
           </div>
         </div>
         <p className="card-copy">
-          Append-only project memory — God&apos;s Eye handoff sessions plus tasks, decisions,
+          Append-only project memory — NightRaven handoff sessions plus tasks, decisions,
           audits, and blockers from the live snapshot and local edits.
         </p>
         <div className="scope-stats">

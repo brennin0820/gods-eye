@@ -49,6 +49,7 @@ This file holds **this project's** vocabulary, boundaries, and disambiguation. D
 | **Repeat task lane** | Before reads/explore: reuse thread context · scan handoff **Recent sessions** + **Already done** on fresh thread · named path only · **continue/again** inherits last outcome — Bible §2.8 · anti-pattern: repeat re-exploration §6 |
 | **Multi-phase handoff gate** | `.cursor/.multiphase-in-flight` marker — defer handoff read/append/Touch 3 until all phases complete; hooks honor marker; one consolidated +# at end; subagents never handoff |
 | **LM Studio division improve loop** | Serial local review of all divisions via [`scripts/lmstudio-division-improve.sh`](../scripts/lmstudio-division-improve.sh) → `docs/lmstudio-reviews/`; Bible local doc §6; no parallel under LM Studio |
+| **Unified Manifest (orchestration)** | Machine-readable NightRaven run manifest (YAML, `version: 1`) — orchestrator + divisions · claim file `AGENT_WORK_LOG.md` · parallel streams with serialized/protected paths (one agent per Swift file · single-stream `project.pbxproj`) · build/audit ledgers · status doc `PARALLEL_RUN_STATUS.md` · no commit without approval; consumer instances live at `.nightraven/*.yaml` in the app repo (e.g. `linenflow-parallel.yaml` — **LinenFlow** Swift app @ Mac `Developer/NightRaven`); worked example: [`examples/manifest/NIGHTRAVEN_UNIFIED_MANIFEST.example.yaml`](../examples/manifest/NIGHTRAVEN_UNIFIED_MANIFEST.example.yaml) |
 
 ---
 

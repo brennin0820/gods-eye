@@ -1,0 +1,111 @@
+# NightRaven Unified Manifest
+# Purpose: One orchestration framework for parallel project execution
+
+version: 1
+
+framework:
+  name: NightRaven
+  label: NightRaven Orchestration Framework
+  description: >
+    Unified project orchestration system for project planning, parallel execution,
+    agent coordination, work claiming, build ledgers, audit ledgers, monitoring,
+    verification, and protected file serialization.
+
+  root: /Users/brentlenninorlanda/Developer/NightRaven
+  registry_entry: NightRaven/scripts/nightraven-projects.conf
+
+orchestrator:
+  name: NightRaven
+  skill: .claude/skills/nightraven/SKILL.md
+  complexity: MEDIUM
+
+  divisions:
+    - planning
+    - builder
+    - auditor
+
+  responsibilities:
+    - read_project_plan
+    - dispatch_parallel_streams
+    - enforce_file_claiming
+    - prevent_agent_conflicts
+    - serialize_sensitive_files
+    - update_status_docs
+    - update_build_ledgers
+    - update_audit_ledgers
+    - verify_completed_streams
+    - avoid_commits_without_user_approval
+
+coordination:
+  claim_file: AGENT_WORK_LOG.md
+  protocol: Docs/AGENT_COORDINATION.md
+
+ledgers:
+  build: Docs/ledgers/BUILD_LEDGER.md
+  audit: Docs/ledgers/AUDIT_LEDGER.md
+
+plans:
+  primary: Docs/BUILD_PLAN_FULL.md
+  handoff: Docs/14_SESSION_HANDOFF.md
+  agent_rules: AGENTS.md
+
+manifest:
+  path: .nightraven/linenflow-parallel.yaml
+
+monitor:
+  status_doc: Docs/PARALLEL_RUN_STATUS.md
+  compass_dev: |
+    cd /Users/brentlenninorlanda/Developer/NightRaven/apps/compass && npm run dev
+  agent_work_log: AGENT_WORK_LOG.md
+
+invoke:
+  cursor_agent: |
+    Read AGENTS.md, Docs/14_SESSION_HANDOFF.md, and Docs/BUILD_PLAN_FULL.md.
+
+    Run the NightRaven orchestration framework using:
+    .nightraven/linenflow-parallel.yaml
+
+    Before editing any file:
+    - Read AGENT_WORK_LOG.md.
+    - Claim the target file.
+    - Check for conflicts.
+    - Respect serialized paths.
+    - Do not overwrite another agent’s work.
+
+    During execution:
+    - Dispatch parallel streams only when paths do not conflict.
+    - Serialize edits to protected files.
+    - Update Docs/PARALLEL_RUN_STATUS.md after each stream.
+    - Update build and audit ledgers.
+    - Verify completed streams with the listed verification command.
+
+    Do not commit unless the user explicitly asks.
+
+  nightraven_skill: |
+    /nightraven Execute Docs/BUILD_PLAN_FULL.md using the NightRaven framework.
+    MEDIUM complexity.
+    Read AGENT_WORK_LOG.md first.
+    Dispatch safe parallel work.
+    Enforce coordination, ledgers, status updates, and verification.
+    Do not commit unless asked.
+
+rules:
+  claim_before_editing: true
+  no_commit_without_user_approval: true
+  update_status_after_each_stream: true
+  update_ledgers_after_each_stream: true
+  prevent_duplicate_work: true
+  preserve_existing_work: true
+  serialize_sensitive_files: true
+  prefer_build_verification_over_full_tests_unless_test_stream: true
+
+serialization_rules:
+  one_agent_per_swift_file: true
+  serialized_paths:
+    - LinenFlow/Views/HomeView.swift
+    - LinenFlow/ViewModels/FlowViewModel.swift
+    - LinenFlow.xcodeproj/project.pbxproj
+  project_file_rule: "Only one stream may edit LinenFlow.xcodeproj/project.pbxproj at a time."
+  conflict_policy: >
+    If a stream needs a serialized file, it must wait, claim it in
+    AGENT_WORK_LOG.md, edit safely, verify, update logs, then release.

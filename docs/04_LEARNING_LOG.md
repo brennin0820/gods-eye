@@ -6,6 +6,16 @@ Durable patterns discovered in this repo. Append-only (`+#`).
 
 ---
 
+## 2026-07-02 — Unified Manifest genre (add or merge)
+
+**Signal:** Brent **add or merge** + pasted YAML — new orchestration-config genre; no prior manifest anywhere in repo.
+
+**Pattern:** "Add or merge" on pasted config → first check for an existing merge target (`.nightraven/`, YAML manifests — none found) → **add verbatim** under `examples/` (worked-instance convention, `.example` suffix, matches overlay/appendix examples) + one overlay §1 vocabulary row; no extra explainer scaffolds. The manifest formalizes existing law as machine-readable config: claim-before-edit (README no-conflict coordination), serialized protected files (one writer per file — Bible §2.4), append-only ledgers, no commit without approval (§2.8), status doc per stream. Consumer-repo paths (`Docs/` capital-D, Swift files) stay app-local; framework holds the worked example only (§2.6 — no app-memory bleed beyond the pointer).
+
+**See:** [`NIGHTRAVEN_REPO_OVERLAY.md`](NIGHTRAVEN_REPO_OVERLAY.md) §1 · [`02_ENGINEERING_CHANGELOG.md`](02_ENGINEERING_CHANGELOG.md) · `examples/manifest/`
+
+---
+
 ## 2026-06-13 — Touch 3 meta-close after push (`52de8e5`)
 
 **Signal:** Brent **`+#` only · stop`** immediately after **`commit` + `push`** of push-landed memory (`80b4e29` record).

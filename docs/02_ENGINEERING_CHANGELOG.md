@@ -4,6 +4,18 @@ Append-only (`+#`). Corrections use **Supersedes** lines — never delete histor
 
 ---
 
+## 2026-07-02
+
+### NightRaven Unified Manifest — add + overlay wire
+
+- +# Brent **add or merge** — pasted **NightRaven Unified Manifest** (`version: 1`) added verbatim as [`examples/manifest/NIGHTRAVEN_UNIFIED_MANIFEST.example.yaml`](../examples/manifest/NIGHTRAVEN_UNIFIED_MANIFEST.example.yaml); no existing manifest/`.nightraven/` in repo → **add** + concept wire (not a merge target)
+- +# Manifest genre: orchestrator (divisions planning/builder/auditor · MEDIUM) · claim file `AGENT_WORK_LOG.md` · serialized protected paths (one agent per Swift file · single-stream `project.pbxproj`) · build/audit ledgers · `PARALLEL_RUN_STATUS.md` status doc · invoke blocks (Cursor agent + `/nightraven`) · no commit without user approval
+- +# First appearance of **LinenFlow** consumer app (Swift; instance manifest `.nightraven/linenflow-parallel.yaml` @ Mac `Developer/NightRaven`); registry root already covered by existing `nightraven-projects.conf` entry — no conf change
+
+**Cross-links:** [`NIGHTRAVEN_REPO_OVERLAY.md`](NIGHTRAVEN_REPO_OVERLAY.md) §1 · [`14_SESSION_HANDOFF.md`](14_SESSION_HANDOFF.md) · [`04_LEARNING_LOG.md`](04_LEARNING_LOG.md)
+
+---
+
 ## 2026-06-13
 
 ### Touch 3 AFTER — push close memory shipped (`52de8e5`)

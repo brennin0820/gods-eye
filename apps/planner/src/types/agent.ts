@@ -1,4 +1,4 @@
-export type AgentRole = 'planner' | 'researcher' | 'architect' | 'reviewer'
+export type AgentRole = 'planner' | 'researcher' | 'architect' | 'reviewer' | 'builder'
 
 export type Module = {
   id: string
@@ -37,13 +37,31 @@ export type ReviewOutput = {
   coveragePercent: number
 }
 
+export type FileChangeProposal = {
+  path: string
+  action: 'write' | 'edit'
+  content?: string
+  oldString?: string
+  newString?: string
+  reasoning: string
+}
+
+export type BuildOutput = {
+  proposals: FileChangeProposal[]
+  applied: boolean
+  note: string
+  filesWritten: string[]
+  filesFailed: Array<{ path: string; error: string }>
+}
+
 export type FlowState = {
   spec: AppSpec
   layout?: LayoutPlan
   research?: ResearchOutput
   architecture?: ArchitectureOutput
   review?: ReviewOutput
-  phase: 0 | 1 | 2 | 3
+  build?: BuildOutput
+  phase: 0 | 1 | 2 | 3 | 4
   approved: boolean
 }
 

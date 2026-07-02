@@ -6,6 +6,27 @@ Append-only (`+#`). Corrections use **Supersedes** lines — never delete histor
 
 ## 2026-07-02
 
+### NightRaven Orchestrator — Planner Phase 2 ("make this an app")
+
+- +# Brent **make this an app** — clarified via AskUserQuestion to **orchestration engine + project tracker, LM Studio as its brain**; closes DIVISION_REGISTRY's own "no LLM dispatch loop yet (Phase 2)" gap and the missing Builder TS agent
+- +# **`apps/planner/src/llm/`** — `lmStudioClient.ts` (OpenAI-compatible; `NIGHTRAVEN_LMSTUDIO_URL` default `localhost:1234/v1`; model auto-resolve from `/v1/models` mirroring `scripts/lmstudio-division-improve.sh`; single-slot serial queue — concurrent `chat()` calls never run in parallel, encoding the local-mode "never parallel under LM Studio" law in code) · `llmBrain.ts` (loads `.claude/skills/divisions/<name>/SKILL.md` as system-prompt context, extracts + zod-validates JSON output) · `schemas.ts` · `findRepoRoot.ts` (Bible-marker walk-up, shared with `mcp-server`'s convention)
+- +# **Planner/Researcher/Architect agents** — LLM-backed via optional constructor param; on `LmStudioUnreachableError`/`LlmBrainOutputError` fall back to the *exact* prior deterministic logic (extracted, not rewritten) — `index.ts`/`run:flow` behavior is unchanged when no client is passed. `ReviewAgent` deliberately stays deterministic-only: the quality gate is compile-visible enforcement, not model judgment
+- +# **`BuilderAgent.ts`** (new, closes the Builder-agent gap) — full tool belt (bash/file_read/file_write/file_edit/glob/grep); LLM proposes `FileChangeProposal[]`; applies only with `approve:true`; without a reachable brain, proposes nothing and reports why (no invented scaffold code)
+- +# **`manifest/`** — generalized Unified Manifest zod schema (`types.ts`) + YAML loader (`loadManifest.ts`), validated against the committed `examples/manifest/NIGHTRAVEN_UNIFIED_MANIFEST.example.yaml`; app-specific fields (e.g. `invoke` prompts) survive in `raw` even though the schema doesn't model them
+- +# **`coordination/`** — `claimFile.ts` (append-only claim log; `claimPath`/`releasePath`; a path held by another stream is refused, not overwritten — Bible §2.4 "one file → one writer" as executable logic) · `statusDoc.ts` (renders `monitor.status_doc`, full-rewrite snapshot) · `ledger.ts` (append-only, entry format matches `docs/ledgers/BUILD_LEDGER.md`/`AUDIT_LEDGER.md` exactly)
+- +# **`tracker/`** — `registry.ts` (parses `scripts/nightraven-projects.conf`) + `projectStatus.ts` (per-project rollup: availability, handoff focus, manifest presence, ledger entry counts — metadata only, Bible §2.6, same discipline as `NIGHTRAVEN_PROJECT_INVENTORY.md`)
+- +# **`orchestrate.ts`** + **`status.ts`** CLIs (`npm run orchestrate -- --manifest <path> [--approve]`, `npm run status`); Builder's writes wired through claim hooks end-to-end in `orchestrate.ts`
+- +# **Verified:** 32/32 vitest pass (12 new — `lmStudioClient` serial-queue + unreachable-error, `loadManifest`, `claimFile`, `statusDoc`, `ledger`, `registry`, `BuilderAgent` integration with a mocked LM Studio response proving proposal→claim→write→release and claim-denial blocking a write); `tsc --noEmit` + `tsc` build clean; manual `orchestrate.ts` dry-run and `--approve` run against a fixture project — honest zero-proposal report when LM Studio is unreachable
+- +# **Not done:** true concurrent multi-stream dispatch (one stream per `orchestrate.ts` invocation today); no live LM Studio server available in this sandbox to test the real chat-completion path — client built strictly to the documented API contract
+- +# **Bug found + fixed in the same pass:** `apps/planner/tsconfig.json` only excluded `node_modules`/`dist`, so `tsc` compiled `*.test.ts` into `dist/**/*.test.js`; running `npm test` after `npm run build` silently doubled every test file/count (9→18 files, 32→64 tests) with no failure signal. Fixed by excluding `src/**/*.test.ts` from the build; verified `dist/` now contains zero `.test.js` files and counts are back to 9/32
+- +# Wired: `apps/planner/AGENTS.md` full rewrite (5-phase table, new directory map, laws) · README + `apps/README.md` Planner status line · `DIVISION_REGISTRY.md` second gap-status table · overlay §1 **NightRaven Orchestrator (Planner Phase 2)** row · handoff Supersedes + Recent sessions
+
+**Cross-links:** [`apps/planner/AGENTS.md`](../apps/planner/AGENTS.md) · [`DIVISION_REGISTRY.md`](DIVISION_REGISTRY.md) · [`NIGHTRAVEN_REPO_OVERLAY.md`](NIGHTRAVEN_REPO_OVERLAY.md) · [`14_SESSION_HANDOFF.md`](14_SESSION_HANDOFF.md) · [`04_LEARNING_LOG.md`](04_LEARNING_LOG.md)
+
+---
+
+## 2026-07-02
+
 ### Repair + gap-fill batch (PR #4 branch)
 
 - +# Brent **repair and fill in the gaps** — redesign Q&A verdict was repair-not-redesign; batch on `claude/grab-concept-project-aex0sm`

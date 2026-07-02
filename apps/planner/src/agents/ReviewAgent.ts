@@ -15,7 +15,11 @@ export class ReviewAgent {
     logger.info('reviewer', 'Tool belt loaded', { tools: this.tools.map((t) => t.name) })
   }
 
-  run(layout: LayoutPlan, architecture: ArchitectureOutput): AgentResult<ReviewOutput> {
+  // Deliberately deterministic, no LLM brain: the quality gate is compile-visible
+  // enforcement (DAG validation, coverage threshold), not model judgment — governance
+  // stays code, not vibes. Async signature only for interface parity with the other agents.
+  // eslint-disable-next-line @typescript-eslint/require-await
+  async run(layout: LayoutPlan, architecture: ArchitectureOutput): Promise<AgentResult<ReviewOutput>> {
     const start = Date.now()
     logger.phase('reviewer', 'Phase 3 — quality gate')
 

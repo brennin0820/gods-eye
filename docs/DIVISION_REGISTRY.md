@@ -73,7 +73,19 @@ AppFoundationFlow
 | Coverage gate | **Fixed** — defined MVP scope now counts as covered (`100`); warning fires only when scope is empty |
 | No test runner | **Fixed** — vitest wired (`npm test`); `ReviewAgent` + `GrepTool` suites, 7 tests |
 | `run:flow` script | **Fixed** — pointed at `src/index.ts --approve` (old path had a filename-case break and no runner) |
-| Builder TypeScript agent · LLM dispatch loop | **Still open** — Phase 2; not part of the repair batch |
+| Builder TypeScript agent · LLM dispatch loop | **Shipped same day** — see below |
+
+### Gap status update (2026-07-02) — orchestrator app ("make this an app")
+
+| Gap | Status |
+|---|---|
+| Builder TypeScript agent | **Shipped** — `apps/planner/src/agents/BuilderAgent.ts`; full tool belt, claim-gated writes, human gate via `--approve` |
+| LLM dispatch loop | **Shipped** — `apps/planner/src/llm/lmStudioClient.ts` (OpenAI-compatible, serial-only queue) + `llmBrain.ts` (division SKILL.md → JSON → zod validation); wired into Planner/Researcher/Architect/Builder, each with a deterministic fallback. `ReviewAgent` deliberately stays LLM-free — the quality gate is governance, not model judgment |
+| Manifest-driven parallel dispatch | **Shipped v1** — `apps/planner/src/manifest/` (generalized Unified Manifest schema + YAML loader) + `apps/planner/src/coordination/` (claim-file conflict rejection, status-doc writer, ledger writer) + `apps/planner/src/orchestrate.ts` CLI |
+| Cross-project tracker | **Shipped** — `apps/planner/src/status.ts` + `tracker/` (registry parser, per-project rollup; metadata only, Bible §2.6) |
+| True concurrent streams | **Still open** — `orchestrate.ts` runs one stream per invocation today; the claim-file/serialized-path machinery is proven (unit + integration tested against a mocked LLM brain) but multi-stream concurrent dispatch from one process is not yet wired |
+
+**Verified:** 32/32 tests pass (12 new: `lmStudioClient` serial-queue + unreachable-error, `loadManifest` against the committed LinenFlow manifest, `claimFile` claim/release/conflict, `statusDoc` + `ledger` render format, registry parser, `BuilderAgent` end-to-end with a mocked LM Studio response — proposal → claim → write → release, and claim-denial correctly blocking a write). `tsc --noEmit` and `tsc` (build) both clean. `orchestrate.ts` run manually against a fixture LinenFlow-shaped project: dry-run and `--approve` both produce an honest status doc when LM Studio is unreachable (zero fabricated proposals).
 
 ---
 

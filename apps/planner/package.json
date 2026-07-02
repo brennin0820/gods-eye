@@ -1,17 +1,20 @@
 {
   "name": "@nightraven/planner",
-  "version": "0.1.0",
-  "description": "NightRaven Planner — multi-agent app foundation layout orchestration",
+  "version": "0.2.0",
+  "description": "NightRaven Orchestrator (Planner Phase 2) — manifest-driven multi-agent app foundation + build pipeline, LM Studio brain, cross-project tracker",
   "type": "module",
   "main": "dist/index.js",
   "scripts": {
     "build": "tsc",
     "dev": "tsx watch src/index.ts",
     "run:flow": "tsx src/index.ts --approve",
+    "orchestrate": "tsx src/orchestrate.ts",
+    "status": "tsx src/status.ts",
     "lint": "tsc --noEmit",
     "test": "vitest run"
   },
   "dependencies": {
+    "yaml": "^2.6.0",
     "zod": "^3.23.8"
   },
   "devDependencies": {

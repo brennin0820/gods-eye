@@ -51,6 +51,7 @@ This file holds **this project's** vocabulary, boundaries, and disambiguation. D
 | **LM Studio division improve loop** | Serial local review of all divisions via [`scripts/lmstudio-division-improve.sh`](../scripts/lmstudio-division-improve.sh) → `docs/lmstudio-reviews/`; Bible local doc §6; no parallel under LM Studio |
 | **Unified Manifest (orchestration)** | Machine-readable NightRaven run manifest (YAML, `version: 1`) — orchestrator + divisions · claim file `AGENT_WORK_LOG.md` · parallel streams with serialized/protected paths (one agent per Swift file · single-stream `project.pbxproj`) · build/audit ledgers · status doc `PARALLEL_RUN_STATUS.md` · no commit without approval; consumer instances live at `.nightraven/*.yaml` in the app repo (e.g. `linenflow-parallel.yaml` — **LinenFlow** Swift app @ Mac `Developer/NightRaven`); worked example: [`examples/manifest/NIGHTRAVEN_UNIFIED_MANIFEST.example.yaml`](../examples/manifest/NIGHTRAVEN_UNIFIED_MANIFEST.example.yaml) |
 | **NightRaven Orchestrator (Planner Phase 2)** | Brent's **"make this an app"** ship — `apps/planner/` runs the Unified Manifest for real: `npm run orchestrate -- --manifest <path> [--approve]` executes Plan → Research → Architect → Review → **Build** with **LM Studio as its brain** (OpenAI-compatible, serial-only queue — local-mode law enforced in code) and claim-file coordination (`coordination/claimFile.ts`); `npm run status` is the **project tracker** across `nightraven-projects.conf`. Deterministic fallback on every LLM-backed agent when LM Studio is unreachable — no invented output; `ReviewAgent` stays LLM-free by design (governance is code, not model judgment). See [`apps/planner/AGENTS.md`](../apps/planner/AGENTS.md) · [`DIVISION_REGISTRY.md`](DIVISION_REGISTRY.md) gap-status update |
+| **NightRaven Roadmap (forward-looking)** | Whole-platform Arc 1 (prove the model) · Arc 2 (consolidate orchestration surface) · Arc 3 (platform) horizon plan across the orchestrator, Compass, taxonomy, and naming decisions — see [`NIGHTRAVEN_ROADMAP.md`](NIGHTRAVEN_ROADMAP.md); distinct from [`NIGHTRAVEN_UNIFIED_STACK.md`](NIGHTRAVEN_UNIFIED_STACK.md) §9 (adoption phases for new adopter repos) and Compass's `apps/compass/docs/MVP_ROADMAP.md` (Compass build phases only) |
 
 ---
 
@@ -76,6 +77,7 @@ This file holds **this project's** vocabulary, boundaries, and disambiguation. D
 | Claude adoption (#15) | [`CLAUDE_ADOPTION.md`](CLAUDE_ADOPTION.md) — Claude Code install path · vendor list · MCP optional · noreply git author · hooks parity |
 | Local vs Cloud | [`NIGHTRAVEN_LOCAL_VS_CLOUD_EXECUTION.md`](NIGHTRAVEN_LOCAL_VS_CLOUD_EXECUTION.md) — local vs cloud execution design |
 | NightRaven unified product | [`NIGHTRAVEN_UNIFIED_PRODUCT.md`](NIGHTRAVEN_UNIFIED_PRODUCT.md) — umbrella brand · monorepo layout · merge status |
+| Roadmap (forward-looking) | [`NIGHTRAVEN_ROADMAP.md`](NIGHTRAVEN_ROADMAP.md) — Arc 1/2/3 horizons; not the adoption-phase roadmap or Compass build roadmap |
 
 
 ---

@@ -6,6 +6,24 @@ Append-only (`+#`). Corrections use **Supersedes** lines — never delete histor
 
 ## 2026-07-02
 
+### Forward roadmap — `docs/NIGHTRAVEN_ROADMAP.md`
+
+- +# Brent **generate next road map** (Plan Mode) — full memory-chain sweep wiring a 13-item repo-wide inventory into a whole-platform forward plan
+- +# Shipped `docs/NIGHTRAVEN_ROADMAP.md` — Arc 1 (prove the model) · Arc 2 (consolidate orchestration surface) · Arc 3 (platform); §0 disambiguates up front against `NIGHTRAVEN_UNIFIED_STACK.md` §9 (adoption-phase roadmap for new adopter repos) and `apps/compass/docs/MVP_ROADMAP.md` (Compass build-phase roadmap) — neither of which is whole-platform, both pre-existed and could otherwise be confused for this doc
+- +# Cross-links only — no duplicated prose from `DIVISION_REGISTRY.md`, `NIGHTRAVEN_UNIFIED_PRODUCT.md`, `NIGHTRAVEN_REPO_OVERLAY.md`, or `NIGHTRAVEN_LOCAL_VS_CLOUD_EXECUTION.md`
+- +# Division taxonomy reconciliation · GitHub repo rename · naming collision (framework/consumer-app/umbrella) flagged **decision needed from Brent** in a §5 index — options with tradeoffs presented, none chosen, per the existing overlay "TBD (do not decide for Brent)" precedent
+- +# **Bundled fix:** `NIGHTRAVEN_LOCAL_VS_CLOUD_EXECUTION.md` §6 gained a disambiguation note — two distinct LM Studio integrations now exist (`scripts/lmstudio-division-improve.sh` review/improve script vs. the new live orchestrator brain `apps/planner/src/llm/`) and the section only covered the former. The original plan assumed the doc's routing table was stale ("Builder listed unimplemented"); on inspection the table's advice was still correct (route large-scale implementation to cloud regardless of BuilderAgent shipping) — the actual gap was the missing cross-reference, not incorrect content
+- +# Fixed handoff Current-state/focus staleness — "review + merge this PR" (PR #5) superseded a third time; confirmed merged `be4000e`, tree clean
+- +# Wired: `AGENTS.md` Reference row · overlay §1 vocab row + §3 Connected chain row
+- +# **Not done this pass:** `NIGHTRAVEN_PROJECT_INVENTORY.md` refresh — registry paths (`/Users/brentlenninorlanda/...`, `E:/NightRaven/...`) are absent from this sandbox; running the scan here would write false "0/16 artifacts" data into an L0-git-truth doc — logged as roadmap §3.3 instead of executed
+- +# **Deliberately not wired:** `README.md` — the roadmap surfaces internal indecision (taxonomy, naming, rename) that doesn't belong in public copy; matches how `DIVISION_REGISTRY.md` itself isn't README-linked today
+
+**Cross-links:** [`NIGHTRAVEN_ROADMAP.md`](NIGHTRAVEN_ROADMAP.md) · [`DIVISION_REGISTRY.md`](DIVISION_REGISTRY.md) · [`NIGHTRAVEN_UNIFIED_PRODUCT.md`](NIGHTRAVEN_UNIFIED_PRODUCT.md) · [`NIGHTRAVEN_REPO_OVERLAY.md`](NIGHTRAVEN_REPO_OVERLAY.md) · [`14_SESSION_HANDOFF.md`](14_SESSION_HANDOFF.md)
+
+---
+
+## 2026-07-02
+
 ### NightRaven Orchestrator — Planner Phase 2 ("make this an app")
 
 - +# Brent **make this an app** — clarified via AskUserQuestion to **orchestration engine + project tracker, LM Studio as its brain**; closes DIVISION_REGISTRY's own "no LLM dispatch loop yet (Phase 2)" gap and the missing Builder TS agent

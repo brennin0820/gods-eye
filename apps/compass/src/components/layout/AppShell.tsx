@@ -51,7 +51,7 @@ export function AppShell({ activeView, children, onViewChange }: AppShellProps) 
   } else if (liveUpdated) {
     statusBanner = (
       <div className="compass-status compass-status--updated" role="status">
-        God&apos;s Eye memory changed — snapshot refreshed{' '}
+        NightRaven memory changed — snapshot refreshed{' '}
         {formatRelativeTime(refreshStatus.lastRefreshedAt)}
       </div>
     )
@@ -84,7 +84,7 @@ export function AppShell({ activeView, children, onViewChange }: AppShellProps) 
                     ? `Refreshed ${formatRelativeTime(refreshStatus.lastRefreshedAt)}`
                     : liveRefreshing
                       ? 'Refreshing from disk…'
-                      : 'Watching God\'s Eye files for changes'
+                      : 'Watching NightRaven files for changes'
                 }
               >
                 {liveUpdated ? 'Updated' : liveRefreshing ? 'Refreshing…' : 'Live'}

@@ -11,6 +11,3 @@ mcp-server/dist/
 apps/*/node_modules/
 apps/*/dist/
 apps/*/.codex/
-apps/*/node_modules/
-apps/*/dist/
-apps/*/.codex/

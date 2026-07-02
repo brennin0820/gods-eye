@@ -39,6 +39,9 @@ apps/planner/
     │   └── ReviewAgent.ts     ← quality gate
     ├── flows/
     │   └── AppFoundationFlow.ts  ← sequential orchestrator
+    ├── tools/
+    │   ├── registry.ts           ← per-division tool belts (DIVISION_TOOLS)
+    │   └── *.ts                  ← AgentTool base + bash/file/glob/grep/web tools
     ├── types/
     │   └── agent.ts           ← shared types: AgentInput, AgentOutput, FlowState
     └── utils/

@@ -8,8 +8,9 @@ export type HandoffParse = {
 }
 
 function extractSection(content: string, heading: string): string {
+  // (?![\s\S]) = true end-of-input; JS regexes have no \Z anchor
   const pattern = new RegExp(
-    `^## ${heading.replace(/[.*+?^${}()|[\]\\]/g, '\\$&')}\\s*$([\\s\\S]*?)(?=^## |\\Z)`,
+    `^## ${heading.replace(/[.*+?^${}()|[\]\\]/g, '\\$&')}\\s*$([\\s\\S]*?)(?=^## |(?![\\s\\S]))`,
     'm',
   )
   const match = content.match(pattern)

@@ -292,7 +292,8 @@ nightraven_is_secret_path() {
   local path="${1//\\//}"
   case "$path" in
     .env|.env.*|*/.env|*/.env.*|credentials.json|*/credentials.json|\
-    *.pem|*/secrets/*|secrets/*|*/id_rsa|*/id_rsa.*|*/.npmrc|auth.json|*/auth.json)
+    *.pem|*/secrets/*|secrets/*|*/id_rsa|*/id_rsa.*|*/.npmrc|auth.json|*/auth.json|\
+    .aws/*|*/.aws/*)
       return 0 ;;
   esac
   return 1

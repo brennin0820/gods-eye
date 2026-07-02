@@ -1,5 +1,5 @@
 #!/usr/bin/env bash
-# Gods Eye Phase 2 — stop (Touch 3 · After) + Always Sync commit/push
+# NightRaven Phase 2 — stop (Touch 3 · After) + Always Sync commit/push
 # Soft follow-up: append Recent sessions (+# only) before ending. Fail-open on git errors.
 
 # Fail-open: never abort before followup_message (no set -e).
@@ -72,7 +72,7 @@ message+=$'\n\n'
 message+="Record Everything (Tier 2+): also append docs/02_ENGINEERING_CHANGELOG.md when work was meaningful; "
 message+="docs/04_LEARNING_LOG.md for new patterns; wire cross-links (rule, Bible, overlay, AGENTS, handoff)."
 message+=$'\n\n'
-message="+# only · this repo only · no new template scaffolds per cycle · then stop."
+message+="+# only · this repo only · no new template scaffolds per cycle · then stop."
 
 emit_followup_message "$message"
 exit 0

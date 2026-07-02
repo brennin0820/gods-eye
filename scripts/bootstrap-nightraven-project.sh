@@ -14,17 +14,27 @@
 set -euo pipefail
 
 NIGHTRAVEN_ROOT="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)"
-PROJECT_NAME="${1:-}"
-TARGET="${2:-}"
+FORCE=0
+ARGS=()
+for arg in "$@"; do
+  case "$arg" in
+    --force) FORCE=1 ;;
+    *) ARGS+=("$arg") ;;
+  esac
+done
+PROJECT_NAME="${ARGS[0]:-}"
+TARGET="${ARGS[1]:-}"
 
 usage() {
   cat <<EOF
 Bootstrap a new NightRaven project (NightRaven + Core)
 
-Usage: $(basename "$0") PROJECT_NAME [TARGET_DIR]
+Usage: $(basename "$0") PROJECT_NAME [TARGET_DIR] [--force]
 
   PROJECT_NAME   Display name (e.g. HimFLer) — used in overlay and README
   TARGET_DIR     Optional absolute path (default: ../PROJECT_NAME next to framework)
+  --force        Reseed overlay/handoff/quickstart/README even if the project
+                 already has live memory (destructive — normally never needed)
 
 Framework: ${NIGHTRAVEN_ROOT}
 EOF
@@ -55,9 +65,20 @@ log "Installing NightRaven + NightRaven Core → ${TARGET}"
 TODAY="$(date +%Y-%m-%d)"
 FRAMEWORK_REF="${NIGHTRAVEN_ROOT}"
 
+# --- Idempotence guard: never rewrite live memory (+# only law) ---
+# A handoff with dated Recent-sessions lines or a Bootstrap milestone means this
+# project already has history — seeding again would erase it (-#). Skip unless --force.
+HANDOFF="${TARGET}/docs/14_SESSION_HANDOFF.md"
+SEED=1
+if [[ "$FORCE" -ne 1 && -f "$HANDOFF" ]] && \
+   grep -qE '^- \*\*[0-9]{4}-[0-9]{2}-[0-9]{2}\*\*|^- \+# \*\*Bootstrap\*\*' "$HANDOFF"; then
+  SEED=0
+  warn "existing handoff has live memory — skipping overlay/handoff/quickstart/README seed (re-run with --force to overwrite)"
+fi
+
 # --- Overlay (product boundary + vocabulary) ---
 OVERLAY="${TARGET}/docs/NIGHTRAVEN_REPO_OVERLAY.md"
-if [[ -f "$OVERLAY" ]]; then
+if [[ "$SEED" -eq 1 && -f "$OVERLAY" ]]; then
   cat > "$OVERLAY" <<EOF
 # NightRaven repo overlay — ${PROJECT_NAME}
 
@@ -109,8 +130,7 @@ EOF
 fi
 
 # --- Handoff ---
-HANDOFF="${TARGET}/docs/14_SESSION_HANDOFF.md"
-if [[ -f "$HANDOFF" ]]; then
+if [[ "$SEED" -eq 1 && -f "$HANDOFF" ]]; then
   cat > "$HANDOFF" <<EOF
 # Session handoff — ${PROJECT_NAME}
 
@@ -148,6 +168,7 @@ fi
 
 # --- Project quickstart ---
 QUICK="${TARGET}/docs/PROJECT_QUICKSTART.md"
+if [[ "$SEED" -eq 1 ]]; then
 cat > "$QUICK" <<EOF
 # ${PROJECT_NAME} — project quickstart
 
@@ -172,12 +193,14 @@ git commit -m "chore: bootstrap ${PROJECT_NAME} with NightRaven + NightRaven Cor
 
 Installed from: \`${FRAMEWORK_REF}\`
 
-Re-run bootstrap (idempotent on missing files only): \`./scripts/bootstrap-nightraven-project.sh ${PROJECT_NAME} "${TARGET}"\`
+Re-run bootstrap (idempotent — skips seeding when the handoff has live memory; \`--force\` overrides): \`./scripts/bootstrap-nightraven-project.sh ${PROJECT_NAME} "${TARGET}"\`
 EOF
 log "wrote docs/PROJECT_QUICKSTART.md"
+fi
 
 # --- README ---
 README="${TARGET}/README.md"
+if [[ "$SEED" -eq 1 ]]; then
 cat > "$README" <<EOF
 # ${PROJECT_NAME}
 
@@ -193,6 +216,7 @@ NightRaven consumer project — **NightRaven** memory + **NightRaven Core** orch
 Bootstrapped ${TODAY} from [NightRaven / NightRaven platform](${FRAMEWORK_REF}).
 EOF
 log "wrote README.md"
+fi
 
 # --- .gitignore baseline ---
 GITIGNORE="${TARGET}/.gitignore"

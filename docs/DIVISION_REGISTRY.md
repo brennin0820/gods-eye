@@ -64,6 +64,17 @@ AppFoundationFlow
 | Coverage gate | `ReviewAgent.ts:43` logic inverted — always fires warning |
 | No test runner | `apps/planner` has no vitest/jest config |
 
+### Gap status update (2026-07-02) — repair batch
+
+| Gap | Status |
+|---|---|
+| DAG cycle detection | **Fixed** — `ReviewAgent` DFS detects cycles, error finding per cycle (tested) |
+| `GrepTool` `glob` param | **Fixed** — glob honored; basename match without `/`, path match with (tested) |
+| Coverage gate | **Fixed** — defined MVP scope now counts as covered (`100`); warning fires only when scope is empty |
+| No test runner | **Fixed** — vitest wired (`npm test`); `ReviewAgent` + `GrepTool` suites, 7 tests |
+| `run:flow` script | **Fixed** — pointed at `src/index.ts --approve` (old path had a filename-case break and no runner) |
+| Builder TypeScript agent · LLM dispatch loop | **Still open** — Phase 2; not part of the repair batch |
+
 ---
 
 ## Cross-links

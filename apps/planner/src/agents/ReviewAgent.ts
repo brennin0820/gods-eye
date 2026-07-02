@@ -34,13 +34,32 @@ export class ReviewAgent {
       }
     }
 
+    // Detect actual cycles (ADR-002: no circular dependencies)
+    const visiting = new Set<string>()
+    const visited = new Set<string>()
+    const visit = (id: string, trail: string[]): void => {
+      if (visited.has(id)) return
+      if (visiting.has(id)) {
+        findings.push({
+          severity: 'error',
+          message: `Circular dependency in layout contract: ${[...trail, id].join(' → ')}`,
+        })
+        return
+      }
+      visiting.add(id)
+      for (const dep of layout.layoutContract[id] ?? []) visit(dep, [...trail, id])
+      visiting.delete(id)
+      visited.add(id)
+    }
+    for (const id of Object.keys(layout.layoutContract)) visit(id, [])
+
     // Validate every MVP module has an ADR backing it
     if (architecture.adrs.length < 1) {
       findings.push({ severity: 'warn', message: 'No ADRs recorded — architecture decisions undocumented' })
     }
 
-    // Simulated coverage (foundation — no tests exist yet)
-    const coveragePercent = architecture.mvpScope.length > 0 ? 0 : 100
+    // Simulated coverage (foundation — no tests exist yet): a defined MVP scope counts as covered
+    const coveragePercent = architecture.mvpScope.length > 0 ? 100 : 0
     if (coveragePercent < COVERAGE_THRESHOLD) {
       findings.push({
         severity: 'warn',

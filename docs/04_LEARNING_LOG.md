@@ -4,6 +4,26 @@ Durable patterns discovered in this repo. Append-only (`+#`).
 
 ---
 
+## 2026-07-02 — Opt-in LLM brain, not a rewrite, keeps deterministic paths honest
+
+**Signal:** Wiring an LM Studio brain into Planner/Researcher/Architect could have replaced their deterministic stub logic outright. Instead each agent takes an *optional* client; the original logic was extracted verbatim as the fallback path, not rewritten.
+
+**Pattern:** When adding a probabilistic capability (LLM call, external service) to code with existing deterministic tests, keep the deterministic path as a real fallback (not a deprecated stub) rather than a hard cutover. Concretely: constructor takes `client?`, the old method body becomes a private `runDeterministic()`, `run()` tries the new path first and catches a narrow error type to fall back. Result: existing tests and `index.ts`'s dry-run demo stay byte-identical with no client passed, while `orchestrate.ts` opts in. This also makes "brain unreachable" a first-class, tested outcome instead of a crash — consistent with the framework's fail-open ethos (`.cursor/hooks/`) applied to a new subsystem.
+
+**See:** [`02_ENGINEERING_CHANGELOG.md`](02_ENGINEERING_CHANGELOG.md) 2026-07-02 · `apps/planner/src/agents/PlannerAgent.ts` · `apps/planner/src/agents/ResearchAgent.ts` · `apps/planner/src/agents/ArchitectAgent.ts`
+
+---
+
+## 2026-07-02 — Governance gates should stay code, not model judgment
+
+**Signal:** Every other Phase-0-3 agent got an LLM brain option. `ReviewAgent` — the quality gate — deliberately did not.
+
+**Pattern:** When a step's job is enforcement (pass/fail against a rule), keep it deterministic even when adding LLM capability elsewhere in the same pipeline. An LLM-judged gate can be argued with, is non-reproducible across runs, and blurs "the auditor found a real cycle" into "the model felt uncertain." `ReviewAgent`'s DAG cycle detection and coverage threshold stay plain TypeScript; only the generative steps (Plan/Research/Architect/Build) got a brain. Mirrors the framework's own division law (Auditor tool belt: read-only, no bash/write) at the reasoning layer, not just the tool layer.
+
+**See:** [`02_ENGINEERING_CHANGELOG.md`](02_ENGINEERING_CHANGELOG.md) 2026-07-02 · `apps/planner/src/agents/ReviewAgent.ts` · `docs/DIVISION_REGISTRY.md`
+
+---
+
 ---
 
 ## 2026-07-02 — Fail-open hooks can mask message-building bugs

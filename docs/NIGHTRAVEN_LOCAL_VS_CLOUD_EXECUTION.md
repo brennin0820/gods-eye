@@ -147,6 +147,8 @@ The MCP server, handoff files, and all memory chain docs work identically in bot
 
 ## 6. LM Studio serial division improvement loop
 
+**Two distinct LM Studio integrations exist — do not conflate them:** this section covers the **review/improve script** (`scripts/lmstudio-division-improve.sh`) — it critiques division `SKILL.md` files and writes review-only markdown to `docs/lmstudio-reviews/`, never patches or runs an agent. A second, separate integration — `apps/planner/src/llm/lmStudioClient.ts` + `llmBrain.ts` — is the **live orchestrator brain**: it drives the Planner/Researcher/Architect/Builder agents (`apps/planner/src/agents/`) against a running LM Studio server to produce real pipeline output, same serial-only law (§4/§2.9), same OpenAI-compatible contract. See [`docs/NIGHTRAVEN_ROADMAP.md`](NIGHTRAVEN_ROADMAP.md) Arc 1 §2.2 — this second integration has not yet been tested against a live server.
+
 **Goal:** Improve **every** NightRaven division locally without cloud subagents or API cost — one division per LM Studio call.
 
 ### When to use

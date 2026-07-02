@@ -4,6 +4,18 @@ Durable patterns discovered in this repo. Append-only (`+#`).
 
 ---
 
+## 2026-07-02 — Roadmap docs need an explicit disambiguation section or they collide silently
+
+**Signal:** This repo already had two roadmap-shaped docs before a whole-platform one was needed — `NIGHTRAVEN_UNIFIED_STACK.md` §9 "Phased roadmap" (adoption phases for a *new adopter repo* bootstrapping NightRaven itself) and `apps/compass/docs/MVP_ROADMAP.md` (Compass's own app build phases). Neither doc's title, nor a cross-link buried at the bottom, signals its narrow scope to a reader or agent skimming file names.
+
+**Pattern:** When a repo accumulates multiple docs that could all reasonably be called "roadmap," the newest one must open with an explicit §0 disambiguation table naming the others and their exact scope — not just a cross-link at the bottom of the doc. Agents and humans skim titles first; a collision without an upfront scope statement risks editing the wrong roadmap, or treating a narrow phase doc as if it covered the whole platform.
+
+**Related:** a planned fix can turn out to be the wrong fix on closer inspection — the original plan for this same session assumed `NIGHTRAVEN_LOCAL_VS_CLOUD_EXECUTION.md`'s routing table falsely claimed Builder was unimplemented; reading the actual table showed the advice was still correct (route large-scale implementation to cloud, independent of BuilderAgent shipping locally) — the real gap was a missing cross-reference between two similarly-named LM Studio integrations, not stale content. Re-verify a cited "staleness" against the actual file before writing the fix, even mid-execution of an approved plan.
+
+**See:** [`NIGHTRAVEN_ROADMAP.md`](NIGHTRAVEN_ROADMAP.md) §0 · [`NIGHTRAVEN_UNIFIED_STACK.md`](NIGHTRAVEN_UNIFIED_STACK.md) §9 · `apps/compass/docs/MVP_ROADMAP.md` · [`NIGHTRAVEN_LOCAL_VS_CLOUD_EXECUTION.md`](NIGHTRAVEN_LOCAL_VS_CLOUD_EXECUTION.md) §6 · [`02_ENGINEERING_CHANGELOG.md`](02_ENGINEERING_CHANGELOG.md) 2026-07-02
+
+---
+
 ## 2026-07-02 — Opt-in LLM brain, not a rewrite, keeps deterministic paths honest
 
 **Signal:** Wiring an LM Studio brain into Planner/Researcher/Architect could have replaced their deterministic stub logic outright. Instead each agent takes an *optional* client; the original logic was extracted verbatim as the fallback path, not rewritten.

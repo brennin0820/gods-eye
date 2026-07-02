@@ -228,6 +228,7 @@ When Brent gives a **concept, context, or idea** (even telegraphic) — infer: *
 - **agent-skills merge (plan):** `.cursor/plans/agent-skills_merge_decision_7be1bdd7.plan.md` — reject core vendor; optional L4 implementation skills after ship signal; overlay §1 **Implementation skills pack (optional)** · [`CURSOR_INSTALL.md`](docs/CURSOR_INSTALL.md) optional post-install pointer · [`NIGHTRAVEN_UNIFIED_STACK.md`](docs/NIGHTRAVEN_UNIFIED_STACK.md) §2
 - **Improvement loop:** `templates/NIGHTRAVEN_IMPROVEMENT_LOOP_CYCLE_PROMPT.md` — cycle prompt, virtual teams, logging rules
 - **Division registry:** `docs/DIVISION_REGISTRY.md` — canonical division list, tool belts, SKILL.md paths, pipeline flow, known gaps
+- **Roadmap (forward-looking):** `docs/NIGHTRAVEN_ROADMAP.md` — Arc 1/2/3 whole-platform horizons; distinct from `NIGHTRAVEN_UNIFIED_STACK.md` §9 (adoption-phase roadmap for new adopters) and `apps/compass/docs/MVP_ROADMAP.md` (Compass build-phase roadmap only)
 - **BigBrother relationship:** `docs/32_BIGBROTHER_OVERSIGHT.md` — complementary BAIC oversight checklist
 - **Repo overlay:** `docs/NIGHTRAVEN_REPO_OVERLAY.md` — local vocabulary, code disambiguation, product boundary (if present)
 - **Architect Division (Phase 0 memory):** overlay §1 **Architect Division** · Bible §9 pointer — structural gap between 11-division proposal, NightRaven runtime, §9 virtual teams; not a renamed virtual team

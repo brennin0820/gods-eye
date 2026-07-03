@@ -11,21 +11,43 @@ import type {
   Project,
   Task,
 } from '../src/types/project'
-import type { ProjectSnapshot } from '../src/types/snapshot'
+import type { CompassReport, ProjectSnapshot } from '../src/types/snapshot'
 import { enrichSnapshot } from '../src/utils/enrichSnapshot'
+import { buildEvolutionSnapshot, evolutionTrackingPaths } from './evolutionTracker'
 import { parseHandoff, parseOverlayNotNow } from './parseHandoff'
+import {
+  buildNextMove,
+  buildProjectFileCatalog,
+  buildProjectMonitorSnapshot,
+} from './projectMonitor'
 import type { RegistryEntry } from './types'
 
 /** NightRaven memory files Compass watches for auto-refresh. */
 export const MONITORED_ARTIFACTS = [
   'docs/37_NIGHTRAVEN.md',
   'docs/NIGHTRAVEN_REPO_OVERLAY.md',
+  'docs/PROJECT_HANDOFF.md',
   'docs/14_SESSION_HANDOFF.md',
+  'docs/PROJECT_CHANGELOG.md',
   'docs/02_ENGINEERING_CHANGELOG.md',
+  'docs/PROJECT_LEARNING.md',
   'docs/04_LEARNING_LOG.md',
+  'docs/PROJECT_SCOPE.md',
+  'docs/PROJECT_ROADMAP.md',
+  'docs/PROJECT_DECISIONS.md',
+  'docs/PARALLEL_RUN_STATUS.md',
+  'PARALLEL_RUN_STATUS.md',
+  'docs/ledgers/BUILD_LEDGER.md',
+  'docs/ledgers/AUDIT_LEDGER.md',
+  '.nightraven/file-claims.json',
+  '.nightraven/manifest.yaml',
+  '.nightraven/manifest.yml',
+  'AGENT_WORK_LOG.md',
   'AGENTS.md',
   '.cursor/rules/nightraven-context-intent.mdc',
   '.cursor/hooks.json',
+  ...evolutionTrackingPaths,
+  ...evolutionTrackingPaths.map((trackingPath) => `apps/compass/${trackingPath}`),
 ] as const
 
 const ARTIFACTS = MONITORED_ARTIFACTS
@@ -38,6 +60,89 @@ function readFileSafe(base: string, rel: string): string | null {
 
 function countArtifacts(base: string): number {
   return ARTIFACTS.filter((rel) => fs.existsSync(path.join(base, rel))).length
+}
+
+function parseGeneratedAt(value: string): string | undefined {
+  const stamp = Date.parse(value)
+  return Number.isNaN(stamp) ? undefined : new Date(stamp).toISOString()
+}
+
+function latestSection(content: string): { heading: string; body: string[] } | null {
+  const matches = [...content.matchAll(/^## \[(.+?)\] (.+)$/gm)]
+  const match = matches.at(-1)
+  if (!match || match.index === undefined) return null
+  const start = match.index + match[0].length
+  const rest = content.slice(start)
+  const nextIndex = rest.search(/^## \[/m)
+  const body = (nextIndex >= 0 ? rest.slice(0, nextIndex) : rest)
+    .split('\n')
+    .map((line) => line.trim())
+    .filter((line) => line.length > 0)
+  return { heading: match[2], body }
+}
+
+function buildArtifactReports(projectPath: string): CompassReport[] {
+  const reports: CompassReport[] = []
+
+  const statusRel = 'docs/PARALLEL_RUN_STATUS.md'
+  const statusContent = readFileSafe(projectPath, statusRel)
+  if (statusContent) {
+    const generatedMatch = statusContent.match(/^_Generated (.+?) by NightRaven Orchestrator\./m)
+    const streamRows = [...statusContent.matchAll(/^\| ([^|]+) \| ([^|]+) \| ([^|]+) \| ([^|]+) \| ([^|]*) \|$/gm)]
+      .filter((row) => row[1] !== 'Stream' && row[1] !== '--------')
+    const active = streamRows.filter((row) => row[4].trim() === 'running').length
+    const failed = streamRows.filter((row) => row[4].trim() === 'failed').length
+    reports.push({
+      id: 'report-parallel-run-status',
+      title: 'Parallel run status',
+      kind: 'build',
+      generatedAt:
+        parseGeneratedAt(generatedMatch?.[1] ?? '') ??
+        fs.statSync(path.join(projectPath, statusRel)).mtime.toISOString(),
+      excerpt: `${streamRows.length} stream row(s); ${active} running; ${failed} failed.`,
+      artifactPath: statusRel,
+    })
+  }
+
+  const buildLedgerRel = 'docs/ledgers/BUILD_LEDGER.md'
+  const buildLedgerContent = readFileSafe(projectPath, buildLedgerRel)
+  if (buildLedgerContent) {
+    const latest = latestSection(buildLedgerContent)
+    if (latest) {
+      const event = latest.body.find((line) => line.startsWith('- Event:'))?.replace('- Event: ', '')
+      const actions = latest.body
+        .find((line) => line.startsWith('- Actions performed:'))
+        ?.replace('- Actions performed: ', '')
+      reports.push({
+        id: 'report-build-ledger-latest',
+        title: `Latest build ledger — ${latest.heading}`,
+        kind: 'build',
+        generatedAt: fs.statSync(path.join(projectPath, buildLedgerRel)).mtime.toISOString(),
+        excerpt: [event, actions].filter(Boolean).join(' · ') || 'Latest build ledger entry available.',
+        artifactPath: buildLedgerRel,
+      })
+    }
+  }
+
+  const auditLedgerRel = 'docs/ledgers/AUDIT_LEDGER.md'
+  const auditLedgerContent = readFileSafe(projectPath, auditLedgerRel)
+  if (auditLedgerContent) {
+    const latest = latestSection(auditLedgerContent)
+    if (latest) {
+      const event = latest.body.find((line) => line.startsWith('- Event:'))?.replace('- Event: ', '')
+      const findings = latest.body.find((line) => line.startsWith('- Findings:'))?.replace('- Findings: ', '')
+      reports.push({
+        id: 'report-audit-ledger-latest',
+        title: `Latest audit ledger — ${latest.heading}`,
+        kind: 'audit',
+        generatedAt: fs.statSync(path.join(projectPath, auditLedgerRel)).mtime.toISOString(),
+        excerpt: [event, findings].filter(Boolean).join(' · ') || 'Latest audit ledger entry available.',
+        artifactPath: auditLedgerRel,
+      })
+    }
+  }
+
+  return reports
 }
 
 /** Stable hash from monitored file mtimes — used for lightweight change detection. */
@@ -348,6 +453,25 @@ export function buildProjectSnapshot(
   ]
 
   const artifactCount = countArtifacts(projectPath)
+  const artifactReports = buildArtifactReports(projectPath)
+  const evolution = buildEvolutionSnapshot(projectPath)
+  const fileCatalog = buildProjectFileCatalog(projectPath, {
+    handoffFound: handoffContent !== null,
+    overlayFound: overlayContent !== null,
+    tasks,
+    blockers,
+    decisions,
+    auditItems,
+  })
+  const monitor = buildProjectMonitorSnapshot(fileCatalog, {
+    handoffFound: handoffContent !== null,
+    overlayFound: overlayContent !== null,
+    tasks,
+    blockers,
+    decisions,
+    auditItems,
+  })
+  const nextMove = buildNextMove(monitor)
 
   const raw: ProjectSnapshot = {
     registry,
@@ -369,12 +493,21 @@ export function buildProjectSnapshot(
     })),
     loopSignals: [],
     doneCriteria: [],
-    reports: [],
+    reports: artifactReports,
+    fileCatalog,
+    monitor,
+    nextMove,
+    evolution,
     settings: {
       dataMode: 'registry',
       autoRefresh: true,
       showPhaseBadges: true,
       projectRootHint: projectPath,
+      openAiApiKey: undefined,
+      claudeApiKey: undefined,
+      tokenVaultMode: 'browser_local',
+      agentProviders: [],
+      agentProfiles: [],
     },
     meta: {
       projectPath,

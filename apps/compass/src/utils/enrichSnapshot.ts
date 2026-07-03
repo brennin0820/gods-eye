@@ -12,6 +12,7 @@ import {
   generateNightRavenPrompt,
   generateResearchPrompt,
 } from './promptGenerator'
+import { normalizeAgentProfiles, normalizeAgentProviders } from './agentSettings'
 import {
   calculateAuditProgress,
   calculateBuildProgress,
@@ -231,6 +232,11 @@ export function enrichSnapshot(
       autoRefresh: snapshot.settings?.autoRefresh ?? true,
       showPhaseBadges: snapshot.settings?.showPhaseBadges ?? true,
       projectRootHint: snapshot.settings?.projectRootHint ?? snapshot.meta.projectPath,
+      openAiApiKey: snapshot.settings?.openAiApiKey,
+      claudeApiKey: snapshot.settings?.claudeApiKey,
+      tokenVaultMode: 'browser_local',
+      agentProviders: normalizeAgentProviders(snapshot.settings),
+      agentProfiles: normalizeAgentProfiles(snapshot.settings),
     },
     meta: {
       ...snapshot.meta,

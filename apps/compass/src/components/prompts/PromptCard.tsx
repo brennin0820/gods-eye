@@ -1,8 +1,15 @@
-import { MessageSquare } from 'lucide-react'
+import { useState } from 'react'
+import { FilePlus2, MessageSquare } from 'lucide-react'
 import type { PromptCard as PromptCardData } from '../../types/project'
+import { generatePromptFile } from '../../services/compassApi'
 
 type PromptCardProps = {
   promptCard: PromptCardData
+  projectPath: string
+  projectLabel: string
+  phaseName: string
+  taskTitle: string
+  onGenerated?: () => Promise<void> | void
 }
 
 const targetLabels: Record<PromptCardData['target'], string> = {
@@ -13,7 +20,37 @@ const targetLabels: Record<PromptCardData['target'], string> = {
   user: 'User',
 }
 
-export function PromptCard({ promptCard }: PromptCardProps) {
+export function PromptCard({
+  promptCard,
+  projectPath,
+  projectLabel,
+  phaseName,
+  taskTitle,
+  onGenerated,
+}: PromptCardProps) {
+  const [status, setStatus] = useState<string | null>(null)
+  const [writing, setWriting] = useState(false)
+
+  async function handleGenerateFile() {
+    setWriting(true)
+    setStatus(null)
+    try {
+      const result = await generatePromptFile({
+        projectPath,
+        projectLabel,
+        phaseName,
+        taskTitle,
+        promptCard,
+      })
+      setStatus(`Generated ${result.artifactPath}`)
+      await onGenerated?.()
+    } catch (error) {
+      setStatus(String(error))
+    } finally {
+      setWriting(false)
+    }
+  }
+
   return (
     <article
       className="dashboard-card dashboard-card--prompt"
@@ -36,6 +73,18 @@ export function PromptCard({ promptCard }: PromptCardProps) {
             <li key={item}>{item}</li>
           ))}
         </ul>
+      </div>
+      <div className="prompt-actions">
+        <button
+          type="button"
+          className="queue-action"
+          onClick={() => void handleGenerateFile()}
+          disabled={writing}
+        >
+          <FilePlus2 size={16} aria-hidden="true" />
+          {writing ? 'Generating…' : 'Generate file'}
+        </button>
+        {status ? <p className="card-copy">{status}</p> : null}
       </div>
     </article>
   )

@@ -8,14 +8,14 @@
 
 | Scope | Name | Role |
 |-------|------|------|
-| **Master BAIC (global)** | **BigBrother** | Official nickname in Brent's AI Constitution — oversight model in `docs/32_BIGBROTHER_OVERSIGHT.md` |
+| **Master BAIC (global)** | **BigBrother** | Official nickname in Brent's AI Constitution — relationship summarized in §7 of this Bible |
 | **Any repo (local option)** | **NightRaven** | Portable oversight — **this Bible**; repo may add a local overlay for product vocabulary |
 
 Brent may say "bigbrother …", "god's eye …", or "godseye …" — map all to **oversight intent** (update durable docs + rules, not chat-only replies). Do not rename master BAIC globally from a single repo.
 
 **Motto:** **Always watches.** Watch the work. Learn from it. Waste nothing. **Forget nothing.**
 
-Related: `docs/32_BIGBROTHER_OVERSIGHT.md`, `docs/35_FAST_START.md`, `docs/36_PROJECT_ISOLATION.md`, `docs/26_USAGE_EFFICIENCY.md`, `BRAND.md`.
+Related: `docs/35_FAST_START.md`, `docs/36_PROJECT_ISOLATION.md`, `docs/NIGHTRAVEN_REPO_OVERLAY.md`, `docs/NIGHTRAVEN_LOCAL_VS_CLOUD_EXECUTION.md`.
 
 ---
 
@@ -31,11 +31,11 @@ Related: `docs/32_BIGBROTHER_OVERSIGHT.md`, `docs/35_FAST_START.md`, `docs/36_PR
 | **→ Always learn — never unlearn** | **2.2** | Append-only memory; Supersedes for corrections |
 | **→ No `-#` — `+#` only** | **2.3** | Protected paths; never delete heading blocks or history |
 | **→ Always parallel** | **2.4** | Default parallel reads/workstreams; one writer per file |
-| **→ Task-scoped rules** | **2.5** | Match depth to task size — align with doc 26 read tiers |
+| **→ Task-scoped rules** | **2.5** | Match depth to task size using the in-file tier table |
 | **→ Project isolation** | **2.6** | Experience vs app memory — no cross-repo bleed (doc 36) |
-| **→ Promote universal to standard** | **2.7** | Cross-app docs/code → published default — Brent should not re-instruct |
+| **→ Promote universal to standard** | **2.7** | Cross-app documentation/code patterns → published default — Brent should not re-instruct |
 | **→ Task worthiness** | **2.8** | Plan until ship signal; passive mode; repeat lane; one Touch 3 AFTER |
-| **→ Always sync + Governed bypass + Local vs cloud** | **2.9** | Pull before work; push after change; bypass needs approval; local = serial only |
+| **→ Always sync + Governed bypass + Local vs cloud** | **2.9** | Pull/fetch before work; commit/push only through approval-aware paths; local = serial only |
 | **Brent's context intent ladder** | **3** | Memory + wire → UI/copy → code (default stops at memory) |
 | **→ Five-step unclear input** | **3** | Fix English · intent · technical translate · explain · ask if truly unclear |
 | **Vocabulary layers (pattern)** | **4** | Category / brand / repo / code — do not collapse |
@@ -48,7 +48,7 @@ Related: `docs/32_BIGBROTHER_OVERSIGHT.md`, `docs/35_FAST_START.md`, `docs/36_PR
 | **→ Direct execution (loop ticks)** | **9** | Read §9–§10 only; parallel audits; template optional |
 | **Tier C — Creator-Innovator** | **10** | Default posture; human-world gate; Product/QA override |
 
-**Read tiers (when to read what):** §2.5 + doc 26 + doc 35 — **Tier 0** new/empty; Tier 1–2 bootstrapped; Tier 3 / loop: §9–§10. **Isolation:** §2.6 + doc 36 — app memory is **this repo only**.
+**Read tiers (when to read what):** §2.5 + `docs/35_FAST_START.md` + `docs/36_PROJECT_ISOLATION.md` — **Tier 0** new/empty; Tier 1–2 bootstrapped; Tier 3 / loop: §9–§10. **Isolation:** §2.6 + doc 36 — app memory is **this repo only**.
 
 ---
 
@@ -66,14 +66,14 @@ Related: `docs/32_BIGBROTHER_OVERSIGHT.md`, `docs/35_FAST_START.md`, `docs/36_PR
 | **Improve loop?** | `docs/NIGHTRAVEN_IMPROVEMENT_LOOP_CYCLE_PROMPT.md` — one `+#` step per cycle |
 | **Loop cycle types?** | **Improve · Concept · Context** — grow the framework, not only polish; still one `+#` step (§9 loop mode) |
 | **Execution default?** | **Always parallel** — decompose independent workstreams; serialize only when required (§2.4; doc 19) |
-| **Which rules apply?** | **§2.5** — match NightRaven depth to task size; align with `docs/26_USAGE_EFFICIENCY.md` read tiers |
+| **Which rules apply?** | **§2.5** — match NightRaven depth to task size using the tier table below |
 | **Fast start (new/empty)?** | **Tier 0** — global rule + `docs/35_FAST_START.md` + `docs/36_PROJECT_ISOLATION.md`; **not** full chain (§5 cold start) |
 | **Other apps' memory?** | **Forbidden** — no handoff, paths, locks, or transcript bleed from other repos (§2.6; doc 36) |
 | **Universal across apps?** | Ship in `nightraven` + install — Brent does not repeat "add X" (§2.7) |
 | **When to code?** | **Plan until ship signal** — §2.8; `code it` / `implement` / `build` drops to code |
 | **Default chat mode?** | **Passive** — memory oversight only; full Core orchestration on **`/nightraven`** only — §2.8 |
 | **Repeat task?** | **Repeat lane** — handoff dedup + thread reuse; no re-read/re-explore — §2.8 |
-| **Sync?** | **Always sync** — pull before work; commit + push after every change (§2.9) |
+| **Sync?** | **Always sync, approval-aware** — fetch/pull before work when safe; commit + push only when user-approved, autosync-approved, or session-stop policy applies (§2.9) |
 | **Override a rule?** | **Governed bypass** — explicit Brent approval first; no silent bypasses (§2.9) |
 | **Local LLM (LM Studio)?** | Serial only; no subagents; strict context pruning — `docs/NIGHTRAVEN_LOCAL_VS_CLOUD_EXECUTION.md` (§2.9) |
 
@@ -89,13 +89,13 @@ Related: `docs/32_BIGBROTHER_OVERSIGHT.md`, `docs/35_FAST_START.md`, `docs/36_PR
 
 ### Agent quick start
 
-**Read first (parallel batch):** classify tier (**§2.5**) → always-on rule → **this §0** → repo overlay (if any) → router (if any) → handoff/protocol per tier → `AGENTS.md`. Tier 0–1 lean: skip full chain — see `docs/35_FAST_START.md` + `docs/26_USAGE_EFFICIENCY.md`.
+**Read first (task-scoped):** classify tier (**§2.5**) → always-on rule → **this §0** → repo overlay (if any) → router (if any) → handoff/protocol per tier → `AGENTS.md`. Tier 0–1 lean: skip full chain — see `docs/35_FAST_START.md` + `docs/36_PROJECT_ISOLATION.md`.
 
 | Phase | Do |
 |-------|-----|
 | **Before edit** | If unclear → §3 **five steps** first; else classify intent on ladder — **memory/wire default**; read overlay + boundary; **parallel-read** disjoint docs (§2.4) |
 | **During** | Guard scope, locked behaviors, duplicate work; **`+#` only** on memory docs; decompose independent workstreams in parallel (§2.4) |
-| **After** | Append changelog + handoff **Recent sessions** when meaningful; learning log when a new pattern appears; wire cross-links — no orphan memory (§5) |
+| **After** | Defer changelog + handoff **Recent sessions** + learning log to the session-stop/final-turn path unless Brent explicitly asks for mid-session memory; wire cross-links when asked — no orphan memory (§5) |
 | **Never** | **`-#`** on memory docs; new `templates/` or scaffold `*.md` per cycle (§9); **serial reads by default**; conflate Brent's **"context"** with code `*Context` types unless he names a `.swift` file; **import app memory from other repos** (§2.6) |
 
 | Common mistake | Fix |
@@ -104,8 +104,8 @@ Related: `docs/32_BIGBROTHER_OVERSIGHT.md`, `docs/35_FAST_START.md`, `docs/36_PR
 | Serial doc-hopping | Batch parallel reads; one canonical list per concept (router/overlay point, don't copy) |
 | Swift `*Context` confusion | Brent's context = agent memory; code `*Context` = domain calculators — repo overlay §1 |
 | Renaming enums to match marketing | Vocabulary layers stay separate — §4 |
-| **Cross-repo handoff bleed** | Read **this repo's** `docs/14` only; master handoff ≠ another app's state — §2.6 |
-| **30-doc cold start** | Tier 0: docs/35 + 36 — not full START_HERE list — §2.5 |
+| **Cross-repo handoff bleed** | Read **this repo's** `docs/14_SESSION_HANDOFF.md` only; master handoff ≠ another app's state — §2.6 |
+| **30-doc cold start** | Tier 0: `docs/35_FAST_START.md` + `docs/36_PROJECT_ISOLATION.md` — not full START_HERE list — §2.5 |
 | **Code before ship signal** | Exploratory Q&A ≠ implement — wait for **code it** / **implement** / **build** — §2.8 |
 | **Heavy thread cost** | Context-heavy chat (~80%+) → fresh thread + handoff; one Touch 3 AFTER per session — §2.8 |
 | **Repeat work / re-read** | Same ask or handoff hit → cite prior outcome; skip re-exploration — §2.8 repeat lane |
@@ -184,7 +184,7 @@ NightRaven is **always on** — not only when Brent adds context or names oversi
 |-------|--------|
 | **Session start** | Read connected chain before editing |
 | **During work** | Guard scope, locked behaviors, duplicate work, `-#` edits, silent unlearning |
-| **After work** | Append changelog + handoff **Recent sessions** when meaningful; learning log when a new pattern appears |
+| **After work** | Defer changelog + handoff **Recent sessions** + learning log to the session-stop/final-turn path unless Brent explicitly asks for mid-session memory |
 
 `.cursor/rules/*.mdc` with `alwaysApply: true` keeps NightRaven present even in short chats.
 
@@ -218,7 +218,7 @@ NightRaven allows **`+#` only** on memory files — never **`-#`**.
 
 ### 2.4 Always parallel
 
-NightRaven agents and coordinators **default to parallel execution** — parallel tool reads, independent subagents for disjoint workstreams, decomposed loop audits — unless serialization is required for safety or coupling. Align with master `docs/19_PARALLEL_AGENT_POLICY.md`.
+NightRaven agents and coordinators **default to parallel execution** — parallel tool reads, independent subagents for disjoint workstreams, decomposed loop audits — unless serialization is required for safety or coupling.
 
 | Default parallel | Serialize only when |
 |------------------|---------------------|
@@ -235,13 +235,13 @@ NightRaven agents and coordinators **default to parallel execution** — paralle
 
 **Law:** **Only apply rules needed for the task.** Match NightRaven read depth and ceremony to task size and risk — do not load the full chain, six-team loop, full protocol, or all docs for a one-line fix.
 
-Align with master `docs/26_USAGE_EFFICIENCY.md` read tiers and task-size ceremony.
+Use the tier table below as the authoritative read-depth and ceremony guide for this repo.
 
 | Tier | When | NightRaven scope |
 |------|------|----------------|
 | **0 — Experience** | New repo, empty project, first message, no local `ai/` | Global rule + **`docs/35_FAST_START.md`** + **`docs/36_PROJECT_ISOLATION.md`**; doc 37 **§0** only if Brent adds context or names NightRaven; **never** other repos' handoff, paths, locks, or transcript scans |
 | **1 — Minimal** | Trivial, single-file, low risk in **bootstrapped** repo | Always-on rule → **§0**; repo overlay pitfalls **only if app/product work**; **this repo's** handoff scan if present |
-| **2 — Standard** | Typical feature, bug, or doc update in bootstrapped repo | Tier 0–1 + context protocol (or repo equivalent) + **this repo's** `docs/14_SESSION_HANDOFF.md` dedup; standard ceremony per doc 26 |
+| **2 — Standard** | Typical feature, bug, or doc update in bootstrapped repo | Tier 0–1 + context protocol (or repo equivalent) + **this repo's** `docs/14_SESSION_HANDOFF.md` dedup; standard ceremony from this tier table |
 | **3 / loop** | Cross-cutting refactor, security, architecture; Brent adds context; `/loop` improvement cycle | Full **§9–§10** (loop, Tier C); six-team lens when loop runs — not for trivial fixes |
 
 | Always (all tiers) | Skip at Tier 0–1 unless risk appears |
@@ -267,7 +267,7 @@ App memory = what THIS project is and where it left off (local).
 
 | On new / empty project | On bootstrapped repo (this workspace) |
 |------------------------|---------------------------------------|
-| Tier 0 — docs/35 + 36; create **fresh** app memory on bootstrap | Read **this repo's** handoff + dedup sources only |
+| Tier 0 — `docs/35_FAST_START.md` + `docs/36_PROJECT_ISOLATION.md`; create **fresh** app memory on bootstrap | Read **this repo's** handoff + dedup sources only |
 | Do **not** import paths, locks, or "Already done" from other apps | Do **not** treat another repo's handoff as binding here |
 | Do **not** scan agent transcripts or other workspaces | Master framework handoff applies **only** when cwd is master repo |
 
@@ -328,13 +328,14 @@ App memory = what THIS project is and where it left off (local).
 
 ### 2.9 Always sync + Governed bypass + Local vs cloud
 
-**Always sync — pull before work; push after every change.**
-The git remote is the authoritative source of truth (§2 L0). Stale local state causes the next agent to re-derive what was already done.
+**Always sync, approval-aware — fetch/pull before work; push only through approved paths.**
+The git remote is the authoritative source of truth (§2 L0). Stale local state causes the next agent to re-derive what was already done, but agents must not fabricate user approval for commits or pushes.
 
 | Event | Action |
 |-------|--------|
-| Start of every session | `git pull` (or equivalent fetch + merge) before touching any file |
-| After every commit | `git push origin <branch>` before closing or writing handoff |
+| Start of every session | Fetch/pull before touching files when safe for the current worktree |
+| After every approved commit | `git push origin <branch>` before closing or writing shipped-state handoff |
+| Commit not approved | Do not commit; report dirty state and the exact verification status |
 | Push deferred | Append explicit defer reason to **Recent sessions** — never imply pushed state while local-only |
 
 **Governed bypass — explicit approval first; no silent overrides.**
@@ -584,11 +585,11 @@ Tier-0 lean repos may omit full BAIC bootstrap — point at master path and loca
 
 | Document | Scope |
 |----------|-------|
-| `docs/32_BIGBROTHER_OVERSIGHT.md` | BAIC oversight — what to watch, what to log, waste prevention, session checklist |
+| This Bible §7 | BigBrother relationship summary — BAIC nickname vs portable NightRaven spec |
 | **`docs/37_NIGHTRAVEN.md`** | **NightRaven Bible** — context-intent ladder, memory laws, connected chain, anti-patterns |
 | `docs/35_FAST_START.md` | Tier 0 cold start — minimal read path for new/empty projects |
 | `docs/36_PROJECT_ISOLATION.md` | Experience vs app memory — no cross-repo bleed |
-| `BRAND.md` | Official name + BigBrother nickname |
+| `docs/NIGHTRAVEN_UNIFIED_PRODUCT.md` | Current monorepo/product naming boundary |
 
 BigBrother and NightRaven are **complementary**: BigBrother is the BAIC-wide oversight nickname and operational checklist; NightRaven is the portable spec for Brent's **"add context"** intent model usable in any repo. A repo may use NightRaven as its local oversight name while master BAIC keeps BigBrother.
 
@@ -679,7 +680,7 @@ Loop mode means **execute one real `+#` improvement** in the connected chain —
 | **Stop** | Ask the agent to **stop** to kill the background `/loop` ticker; loop is opt-in, not always-on |
 | **Where writes go** | Existing chain docs only (§9 hard law) — Bible, overlay, rules, changelog, learning log, handoff |
 
-Related: `docs/32_BIGBROTHER_OVERSIGHT.md`, `docs/26_USAGE_EFFICIENCY.md`, `templates/BIGBROTHER_WEEKLY_REVIEW.md` (weekly synthesis — complementary, not duplicate).
+Related: `docs/35_FAST_START.md`, `docs/36_PROJECT_ISOLATION.md`, `docs/NIGHTRAVEN_LOCAL_VS_CLOUD_EXECUTION.md`, `docs/NIGHTRAVEN_IMPROVEMENT_LOOP_CYCLE_PROMPT.md`.
 
 ---
 
@@ -747,4 +748,4 @@ Brent is one creator. Tier C is how his **standard for work worth making** scale
 
 ---
 
-*Established 2026-06-09 as portable spec. §2.8 push-latency law added 2026-06-09. §2.7 Promote universal to standard added 2026-06-10. §2.8 Task worthiness promoted from BankrollCalendar 2026-06-09. Elevated to **NightRaven Bible** 2026-06-09 — TOC + solo-dev loop guidance. Tier C added 2026-06-09. Default innovator posture added 2026-06-09. §0 sixty-second glance + naming added 2026-06-09. §0 Agent quick start added 2026-06-09. §2.4 Always parallel added 2026-06-09. §2.5 Task-scoped rules added 2026-06-09. §2.6 Project isolation + Tier 0 fast start wired to docs/35–36 added 2026-06-09. §1 Identity + Continuous learning & compounding added 2026-06-09. §3 Understand before respond + Interpretation framework added 2026-06-09. §0 loop cycle types + canonical-card scope cherry-picked 2026-06-09. §2.6 master upstream pointer added 2026-06-09. NightRaven always watches.*
+*Established 2026-06-09 as portable spec. §2.8 push-latency law added 2026-06-09. §2.7 Promote universal to standard added 2026-06-10. §2.8 Task worthiness promoted from BankrollCalendar 2026-06-09. Elevated to **NightRaven Bible** 2026-06-09 — TOC + solo-dev loop guidance. Tier C added 2026-06-09. Default innovator posture added 2026-06-09. §0 sixty-second glance + naming added 2026-06-09. §0 Agent quick start added 2026-06-09. §2.4 Always parallel added 2026-06-09. §2.5 Task-scoped rules added 2026-06-09. §2.6 Project isolation + Tier 0 fast start wired to `docs/35_FAST_START.md` + `docs/36_PROJECT_ISOLATION.md` added 2026-06-09. §1 Identity + Continuous learning & compounding added 2026-06-09. §3 Understand before respond + Interpretation framework added 2026-06-09. §0 loop cycle types + canonical-card scope cherry-picked 2026-06-09. §2.6 master upstream pointer added 2026-06-09. NightRaven always watches.*

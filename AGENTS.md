@@ -4,7 +4,7 @@
 
 **NightRaven monorepo map:** [`docs/NIGHTRAVEN_UNIFIED_PRODUCT.md`](docs/NIGHTRAVEN_UNIFIED_PRODUCT.md) · Compass app: [`apps/compass/`](apps/compass/)
 
-**Compass app work:** Read [`apps/compass/AGENTS.md`](apps/compass/AGENTS.md) first — not framework `docs/14` unless editing framework itself. Compass loads consumer handoffs from registered project paths (`scripts/nightraven-projects.conf`).
+**Compass app work:** Read [`apps/compass/AGENTS.md`](apps/compass/AGENTS.md) first — not framework `docs/14_SESSION_HANDOFF.md` unless editing framework itself. Compass loads consumer handoffs from registered project paths (`scripts/nightraven-projects.conf`).
 
 ---
 
@@ -14,7 +14,9 @@
 
 **Intended purpose:** Remember (handoff/overlay) · Guard (scope, ship signal) · Compound (wire once). **Not:** orchestration on every prompt or re-doing solved work. **`/nightraven`** = optional orchestration only.
 
-### START HERE — Read in parallel
+### START HERE — Task-scoped read path
+
+Use this full list for Tier 2–3 framework work. For trivial/Q&A/low-risk tasks, use the fast paths below and read only the affected files plus the always-on rule.
 
 | # | Read |
 |---|------|
@@ -39,7 +41,7 @@
 - **Always watches** — every session reads chain, guards scope, appends outcomes
 - **Always learn** — append-only memory; **Supersedes** for corrections; never delete history
 - **Always parallel** — decompose independent workstreams; serialize only when write scopes overlap
-- **Always sync** — pull before work; commit + push after every change; no local-only commits (§2.3)
+- **Always sync, approval-aware** — pull/fetch before work when safe; commit + push only when the user asks, approved autosync applies, or session-close policy explicitly requires it; no false shipped/local-only claims (§2.9)
 - **This repo only** — no cross-repo app memory bleed (§2.6 · doc 36)
 - **Tier C leads** — craft, coherence, elegance, human-world gate (§10)
 - **Cross-app → standard** — promote universal patterns to published defaults (§2.7)
@@ -92,7 +94,7 @@ Memory + wire  →  UI/copy  →  Code/feature
 
 ### Never
 
-- **`-#`** on memory docs (protected: docs/04, docs/02, docs/14, rules, overlay)
+- **`-#`** on memory docs (protected: `docs/04_LEARNING_LOG.md`, `docs/02_ENGINEERING_CHANGELOG.md`, `docs/14_SESSION_HANDOFF.md`, rules, overlay)
 - New `templates/` or scaffold `*.md` per cycle (§9 hard law)
 - **Serial doc reads by default** (batch parallel reads; one canonical list per concept)
 - **Conflate Brent's "context"** with code `*Context` types (use repo overlay disambiguation)
@@ -124,8 +126,8 @@ Every addition at one layer must **not** silently rename another.
 | **Serial doc-hopping** | Batch parallel reads; one canonical list per concept |
 | **Context ↔ *Context* confusion** | Brent's context = agent memory; code `*Context` = domain calculator |
 | **Renaming enums to match marketing** | Vocabulary layers stay separate — repo overlay §1 |
-| **Cross-repo handoff bleed** | Read **this repo's** `docs/14` only — no other app's state |
-| **30-doc cold start** | Tier 0: `docs/35` + `docs/36` — not full chain |
+| **Cross-repo handoff bleed** | Read **this repo's** `docs/14_SESSION_HANDOFF.md` only — no other app's state |
+| **30-doc cold start** | Tier 0: `docs/35_FAST_START.md` + `docs/36_PROJECT_ISOLATION.md` — not full chain |
 | **Code before ship signal** | Wait for **code it** / **implement** / **build** — exploratory Q&A ≠ code |
 | **Heavy thread cost** | Fresh thread + handoff when ~80%+ context; one Touch 3 AFTER per session |
 | **Assume Brent is wrong** | Run §3 five steps — fix English, honor intent |
@@ -133,7 +135,7 @@ Every addition at one layer must **not** silently rename another.
 | **Mid-session Touch 3** | Defer handoff/changelog/learning to session-stop follow-up — not while building or subagents run |
 | **Touch 3 mid-session or delegated** | Touch 3 runs on `session-stop` final turn only — inline, not as a background subagent; defer until hook fires |
 | **Unlearning** | No delete, trim, or rewrite of history — **Supersedes** for corrections |
-| **Forgetting to sync** | Always pull before work; always push after commit — no silent local-only state |
+| **Forgetting to sync** | Pull/fetch before work when safe; push after approved commits or record an explicit defer reason — no false shipped/local-only state |
 | **Silent rule bypass** | Governed Bypass requires explicit Brent approval *first* — never assume implicit permission |
 | **Local-mode parallelization** | Serial only on LM Studio — no subagents; see `docs/NIGHTRAVEN_LOCAL_VS_CLOUD_EXECUTION.md` §4 |
 
@@ -143,9 +145,9 @@ Every addition at one layer must **not** silently rename another.
 
 | Tier | When | NightRaven scope |
 |------|------|-----------------|
-| **0 — Experience** | New repo, empty, first message | Global rule + `docs/35` + `docs/36`; §0 only if Brent adds context |
+| **0 — Experience** | New repo, empty, first message | Global rule + `docs/35_FAST_START.md` + `docs/36_PROJECT_ISOLATION.md`; §0 only if Brent adds context |
 | **1 — Minimal** | Trivial, single-file, low risk | Always-on rule → §0; overlay pitfalls only if product work; handoff scan if present |
-| **2 — Standard** | Typical feature, bug, doc update | Tier 0–1 + context protocol + **this repo's** `docs/14` dedup |
+| **2 — Standard** | Typical feature, bug, doc update | Tier 0–1 + context protocol + **this repo's** `docs/14_SESSION_HANDOFF.md` dedup |
 | **3 / loop** | Cross-cutting refactor, security, Brent adds context | Full §9–§10; six-team lens if `/loop` improvement cycle runs |
 
 **Always (all tiers):** `+#` only on memory docs · parallel-read disjoint paths · intent ladder default · dedup scoped to **this repo only**.
@@ -225,17 +227,17 @@ When Brent gives a **concept, context, or idea** (even telegraphic) — infer: *
 - **MCP (Phase 2, optional):** `docs/MCP_SETUP.md` — memory-chain tools (read, search, append Recent sessions); git authoritative
 - **Local vs Cloud execution:** `docs/NIGHTRAVEN_LOCAL_VS_CLOUD_EXECUTION.md` — LM Studio vs cloud frontier modes; model recommendations; agent rules by provider; LM Studio quickstart
 - **Research map (plan):** `.cursor/plans/nightraven_research_map_b4b6f06f.plan.md` — external field overlaps vs NightRaven differentiators; overlay §1 **Composed architecture** · **GIRMA**
-- **agent-skills merge (plan):** `.cursor/plans/agent-skills_merge_decision_7be1bdd7.plan.md` — reject core vendor; optional L4 implementation skills after ship signal; overlay §1 **Implementation skills pack (optional)** · [`CURSOR_INSTALL.md`](docs/CURSOR_INSTALL.md) optional post-install pointer · [`NIGHTRAVEN_UNIFIED_STACK.md`](docs/NIGHTRAVEN_UNIFIED_STACK.md) §2
+- **agent-skills merge decision:** optional L4 implementation skills after ship signal; overlay §1 **Implementation skills pack (optional)** · [`CURSOR_INSTALL.md`](docs/CURSOR_INSTALL.md) optional post-install pointer · [`NIGHTRAVEN_UNIFIED_STACK.md`](docs/NIGHTRAVEN_UNIFIED_STACK.md) §2
 - **Improvement loop:** `docs/NIGHTRAVEN_IMPROVEMENT_LOOP_CYCLE_PROMPT.md` — cycle prompt, virtual teams, logging rules
 - **Division registry:** `docs/DIVISION_REGISTRY.md` — canonical division list, tool belts, SKILL.md paths, pipeline flow, known gaps
 - **Roadmap (forward-looking):** `docs/NIGHTRAVEN_ROADMAP.md` — Arc 1/2/3 whole-platform horizons; distinct from `NIGHTRAVEN_UNIFIED_STACK.md` §9 (adoption-phase roadmap for new adopters) and `apps/compass/docs/MVP_ROADMAP.md` (Compass build-phase roadmap only)
-- **BigBrother relationship:** `docs/32_BIGBROTHER_OVERSIGHT.md` — complementary BAIC oversight checklist
+- **BigBrother relationship:** `docs/37_NIGHTRAVEN.md` §7 — complementary BAIC oversight summary
 - **Repo overlay:** `docs/NIGHTRAVEN_REPO_OVERLAY.md` — local vocabulary, code disambiguation, product boundary (if present)
 - **Architect Division (Phase 0 memory):** overlay §1 **Architect Division** · Bible §9 pointer — structural gap between 11-division proposal, NightRaven runtime, §9 virtual teams; not a renamed virtual team
 - **Claude adoption (#15):** [`docs/CLAUDE_ADOPTION.md`](docs/CLAUDE_ADOPTION.md) — Claude Code install, vendor list, noreply author, hooks parity
 
 ---
 
-**After meaningful work:** append handoff **Recent sessions**; Tier 2+ also changelog + learning log. One `+#` per session at most when updating memory.
+**After meaningful work:** defer handoff **Recent sessions**, changelog, and learning-log Touch 3 updates to the session-stop/final-turn path unless Brent explicitly asks for a mid-session memory append. One `+#` batch per session at most when updating memory.
 
 **Identity:** Bible §1 — NightRaven as collective legendary mastery; Tier C (§10) is operational expression.

@@ -51,7 +51,8 @@ async function walkGrep(
       results.push(...await walkGrep(full, base, re, context, fileMatch))
     } else {
       const rel = relative(base, full)
-      if (fileMatch && !fileMatch(rel)) continue
+      const normalizedRel = rel.replace(/\\/g, '/')
+      if (fileMatch && !fileMatch(normalizedRel)) continue
       results.push(...await grepFile(rel, re, context).catch(() => []))
     }
   }

@@ -26,7 +26,7 @@ alwaysApply: true
 
 **Learning doctrine:** Bible §1 **Continuous learning & compounding** — memory is mechanism; compounding is goal (§2.1 · §2.2)
 
-**Laws:** **`+#` only** · never `-#` · **always parallel** · **always sync** · **this repo only** · **Tier C** · **cross-app → standard** (§2.7)
+**Laws:** **`+#` only** · never `-#` · **always parallel** · **always sync, approval-aware** · **this repo only** · **Tier C** · **cross-app → standard** (§2.7)
 
 **Ladder:** Memory → wire → UI/copy → code — default stops at memory unless user names screen/label/behavior/implement
 
@@ -52,6 +52,6 @@ alwaysApply: true
 
 **Governed Bypass:** Rules (including `+#` only) may be bypassed *if and only if* explicit user approval is requested and granted, and the change is demonstrably for the better.
 
-**Always Sync:** Always download (pull/fetch) and upload (commit/push) all changes to the repository every time a change happens.
+**Always Sync:** Fetch/pull before file changes when safe. Commit/push only when the user asks, approved autosync applies, or the session-stop policy explicitly requires it; otherwise state the defer reason and never imply local-only work has shipped.
 
 **Local vs Cloud:** Execution mode affects read discipline and parallelization — see `docs/NIGHTRAVEN_LOCAL_VS_CLOUD_EXECUTION.md`. Local (LM Studio): serial only, strict context pruning, no subagents. Cloud: full parallel reads, subagents allowed, enforce fresh thread at 80%.

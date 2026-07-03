@@ -13,7 +13,7 @@
 | **Planner** | Decompose spec → module layout + dependency DAG | `.claude/skills/divisions/planner/SKILL.md` | `apps/planner/src/agents/PlannerAgent.ts` | 0 |
 | **Researcher** | PRD + best practices + risks | `.claude/skills/divisions/researcher/SKILL.md` | `apps/planner/src/agents/ResearchAgent.ts` | 1 |
 | **Architect** | ADRs + MoSCoW MVP scope + roadmap | `.claude/skills/divisions/architect/SKILL.md` | `apps/planner/src/agents/ArchitectAgent.ts` | 2 |
-| **Builder** | Implement features, run tests, fix loop | `.claude/skills/divisions/builder/SKILL.md` | *(Phase 2 — not yet implemented)* | 3 |
+| **Builder** | Implement features, run tests, fix loop | `.claude/skills/divisions/builder/SKILL.md` | `apps/planner/src/agents/BuilderAgent.ts` | 3 |
 | **Auditor** | Risk-score artifacts, quality gate | `.claude/skills/divisions/auditor/SKILL.md` | `apps/planner/src/agents/ReviewAgent.ts` | 3 |
 | **Greenfield** | Meta-skill: Planner + Researcher + Architect in parallel | `.claude/skills/divisions/greenfield/SKILL.md` | `apps/planner/src/flows/AppFoundationFlow.ts` | 0–2 |
 
@@ -46,14 +46,14 @@ AppFoundationFlow
   Phase 2 → Architect   (ADRs + MVP scope)
   Phase 3 → Auditor     (quality gate: DAG validation, ADR check, coverage)
                ↓ PASS
-  Phase 4 → Builder     (implementation — Phase 2, not yet wired)
+  Phase 4 → Builder     (implementation — shipped in `apps/planner`)
 ```
 
 **Greenfield skill** triggers Phases 0–2 in parallel then synthesizes → `PLAN.md` → human gate → Builder.
 
 ---
 
-## Known gaps (as of 2026-06-13)
+## Known gaps (historical snapshot — as of 2026-06-13)
 
 | Gap | Status |
 |---|---|

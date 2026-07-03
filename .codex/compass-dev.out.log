@@ -1,0 +1,67 @@
+
+> nightraven-compass@0.0.0 dev
+> vite --host 127.0.0.1 --port 4173
+
+Port 4173 is in use, trying another one...
+
+  [32m[1mVITE[22m v8.0.16[39m  [2mready in [0m[1m169[22m[2m[0m ms[22m
+
+  [32m➜[39m  [1mLocal[22m:   [36mhttp://127.0.0.1:[1m4174[22m/[39m
+[2m[32m  ➜[39m[22m[2m  press [22m[1mh + enter[22m[2m to show help[22m
+[2m1:34:03 AM[22m [36m[1m[vite][22m[39m [32mserver/compassApiPlugin.ts changed, restarting server...[39m
+[2m1:34:03 AM[22m [36m[1m[vite][22m[39m server restarted.
+[2m1:34:16 AM[22m [36m[1m[vite][22m[39m [90m[2m(client)[22m[39m [32mhmr update [39m[2m/src/context/ProjectContext.tsx[22m
+[2m1:34:30 AM[22m [36m[1m[vite][22m[39m [90m[2m(client)[22m[39m [32mhmr update [39m[2m/src/components/prompts/PromptCard.tsx[22m
+[2m1:35:57 AM[22m [36m[1m[vite][22m[39m [90m[2m(client)[22m[39m [32mhmr update [39m[2m/src/components/layout/AppShell.tsx, /src/components/criteria/DoneCriteriaPage.tsx, /src/components/lists/BlockersPage.tsx, /src/components/lists/DecisionsPage.tsx, /src/components/dashboard/DashboardPage.tsx, /src/components/lists/NotNowPage.tsx, /src/components/progress/ProgressTrackerPage.tsx, /src/components/auditor/AuditorQueuePage.tsx, /src/components/priority/PriorityBoardPage.tsx, /src/components/memory/MemoryFeedPage.tsx, /src/components/prompts/NextPromptPage.tsx and 6 more[22m
+[2m1:36:01 AM[22m [36m[1m[vite][22m[39m [32msrc/utils/enrichSnapshot.ts changed, restarting server...[39m
+[2m1:36:01 AM[22m [36m[1m[vite][22m[39m server restarted.
+[2m1:36:04 AM[22m [36m[1m[vite][22m[39m [32mserver/buildSnapshot.ts changed, restarting server...[39m
+[2m1:36:04 AM[22m [36m[1m[vite][22m[39m server restarted.
+[2m1:36:15 AM[22m [36m[1m[vite][22m[39m [90m[2m(client)[22m[39m [32mhmr update [39m[2m/src/components/settings/SettingsPage.tsx[22m
+[2m1:36:37 AM[22m [36m[1m[vite][22m[39m [90m[2m(client)[22m[39m [32mhmr update [39m[2m/src/components/dashboard/DashboardPage.tsx[22m
+[2m1:36:43 AM[22m [36m[1m[vite][22m[39m [90m[2m(client)[22m[39m [32mhmr update [39m[2m/src/components/prompts/NextPromptPage.tsx[22m
+[2m1:58:09 AM[22m [36m[1m[vite][22m[39m [90m[2m(client)[22m[39m [32mhmr update [39m[2m/src/context/ProjectContext.tsx, /src/components/prompts/PromptCard.tsx[22m
+[2m2:05:06 AM[22m [36m[1m[vite][22m[39m [32mserver/compassApiPlugin.ts changed, restarting server...[39m
+[2m2:05:06 AM[22m [36m[1m[vite][22m[39m server restarted.
+[2m6:00:40 AM[22m [36m[1m[vite][22m[39m [90m[2m(client)[22m[39m [32mpage reload [39m[2mindex.html[22m
+[2m6:00:44 AM[22m [36m[1m[vite][22m[39m [32mserver/buildSnapshot.ts changed, restarting server...[39m
+[2m6:00:44 AM[22m [36m[1m[vite][22m[39m [32mserver/parseHandoff.ts changed, restarting server...[39m
+[2m6:00:44 AM[22m [36m[1m[vite][22m[39m [32mserver/compassApiPlugin.ts changed, restarting server...[39m
+[2m6:00:45 AM[22m [36m[1m[vite][22m[39m [32msrc/utils/enrichSnapshot.ts changed, restarting server...[39m
+[2m6:00:45 AM[22m [36m[1m[vite][22m[39m changed tsconfig file detected: E:/Github/NightRaven/apps/compass/tsconfig.json - Clearing cache and forcing full-reload to ensure TypeScript is compiled with updated config values.
+[2m6:00:45 AM[22m [36m[1m[vite][22m[39m [32mserver/buildSnapshot.ts changed, restarting server...[39m
+[2m6:00:45 AM[22m [36m[1m[vite][22m[39m [32msrc/utils/progress.ts changed, restarting server...[39m
+[2m6:00:45 AM[22m [36m[1m[vite][22m[39m [32msrc/utils/promptGenerator.ts changed, restarting server...[39m
+[2m6:00:45 AM[22m [36m[1m[vite][22m[39m [32msrc/utils/loopDetector.ts changed, restarting server...[39m
+[2m6:00:45 AM[22m [36m[1m[vite][22m[39m [32mvite.config.ts changed, restarting server...[39m
+[2m6:00:45 AM[22m [36m[1m[vite][22m[39m [32mserver/parseHandoff.ts changed, restarting server...[39m
+[2m6:00:45 AM[22m [36m[1m[vite][22m[39m [32mserver/compassApiPlugin.ts changed, restarting server...[39m
+[2m6:00:45 AM[22m [36m[1m[vite][22m[39m server restarted.
+[2m4:53:16 PM[22m [36m[1m[vite][22m[39m [32mserver/buildSnapshot.ts changed, restarting server...[39m
+[2m4:53:16 PM[22m [36m[1m[vite][22m[39m server restarted.
+[2m4:54:15 PM[22m [36m[1m[vite][22m[39m [32mserver/compassApiPlugin.ts changed, restarting server...[39m
+[2m4:54:15 PM[22m [36m[1m[vite][22m[39m server restarted.
+[2m4:54:35 PM[22m [36m[1m[vite][22m[39m [32mserver/compassApiPlugin.ts changed, restarting server...[39m
+[2m4:54:35 PM[22m [36m[1m[vite][22m[39m server restarted.
+[2m5:01:54 PM[22m [36m[1m[vite][22m[39m [32mserver/projectMonitor.ts changed, restarting server...[39m
+[2m5:01:54 PM[22m [36m[1m[vite][22m[39m server restarted.
+[2m5:11:37 PM[22m [36m[1m[vite][22m[39m [32msrc/utils/enrichSnapshot.ts changed, restarting server...[39m
+[2m5:11:37 PM[22m [36m[1m[vite][22m[39m server restarted.
+[2m5:11:52 PM[22m [36m[1m[vite][22m[39m [32msrc/utils/agentSettings.ts changed, restarting server...[39m
+[2m5:11:52 PM[22m [36m[1m[vite][22m[39m server restarted.
+[2m5:13:51 PM[22m [36m[1m[vite][22m[39m [32mserver/buildSnapshot.ts changed, restarting server...[39m
+[2m5:13:51 PM[22m [36m[1m[vite][22m[39m server restarted.
+[2m5:26:18 PM[22m [36m[1m[vite][22m[39m [32mserver/buildSnapshot.ts changed, restarting server...[39m
+[2m5:26:18 PM[22m [36m[1m[vite][22m[39m server restarted.
+[2m5:26:35 PM[22m [36m[1m[vite][22m[39m [32mserver/projectMonitor.ts changed, restarting server...[39m
+[2m5:26:35 PM[22m [36m[1m[vite][22m[39m server restarted.
+[2m5:30:15 PM[22m [36m[1m[vite][22m[39m [32mserver/evolutionTracker.ts changed, restarting server...[39m
+[2m5:30:15 PM[22m [36m[1m[vite][22m[39m server restarted.
+[2m5:30:22 PM[22m [36m[1m[vite][22m[39m [32mserver/buildSnapshot.ts changed, restarting server...[39m
+[2m5:30:22 PM[22m [36m[1m[vite][22m[39m server restarted.
+[2m5:30:31 PM[22m [36m[1m[vite][22m[39m [32mserver/projectMonitor.ts changed, restarting server...[39m
+[2m5:30:31 PM[22m [36m[1m[vite][22m[39m server restarted.
+[2m5:47:18 PM[22m [36m[1m[vite][22m[39m [32mserver/buildSnapshot.ts changed, restarting server...[39m
+[2m5:47:18 PM[22m [36m[1m[vite][22m[39m [32mserver/compassApiPlugin.ts changed, restarting server...[39m
+[2m5:47:18 PM[22m [36m[1m[vite][22m[39m [32msrc/utils/enrichSnapshot.ts changed, restarting server...[39m
+[2m5:47:18 PM[22m [36m[1m[vite][22m[39m server restarted.

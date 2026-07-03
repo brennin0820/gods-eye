@@ -46,7 +46,7 @@ export class BuilderAgent {
     let note: string
 
     if (!this.llm) {
-      note = 'No LM Studio brain configured — Builder requires a client to propose changes. Pass --llm to orchestrate.'
+      note = 'No LM Studio brain configured — Builder requires an LM Studio client to propose changes. Run through orchestrate with LM Studio available.'
     } else {
       try {
         const result = await askDivisionBrain(

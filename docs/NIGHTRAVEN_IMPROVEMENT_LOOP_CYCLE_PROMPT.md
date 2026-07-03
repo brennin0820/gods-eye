@@ -4,7 +4,7 @@
 
 **Authority:** Master `docs/37_NIGHTRAVEN.md` §9 (virtual teams + loop law), §10 (Tier C — Creator-Innovator). Repo overlays extend locally only.
 
-**Laws (non-negotiable):** Always watches · Always learn · **`+#` only** · Never `-#` · Supersedes for corrections · One small improvement per cycle · **Always sync** (pull before; push after).
+**Laws (non-negotiable):** Always watches · Always learn · **`+#` only** · Never `-#` · Supersedes for corrections · One small improvement per cycle · **Always sync, approval-aware** (fetch/pull before; push after approved commit or record explicit defer).
 
 **Execution mode:** If running under LM Studio (local), run six audits **serially** — no parallel subagents. If running under a cloud frontier model (Anthropic, Google, OpenAI), parallel subagents and full six-team lens are allowed. See [`NIGHTRAVEN_LOCAL_VS_CLOUD_EXECUTION.md`](NIGHTRAVEN_LOCAL_VS_CLOUD_EXECUTION.md) §4.
 
@@ -49,7 +49,7 @@ Read in order (skip missing files; note gaps as improvement candidates):
 
 1. Master `docs/37_NIGHTRAVEN.md` (§2.6 isolation + §5 cold start if auditing fast-load chain)
 2. Master `docs/35_FAST_START.md` + `docs/36_PROJECT_ISOLATION.md` (when cycle touches Tier 0 / new-project path)
-3. Master `docs/32_BIGBROTHER_OVERSIGHT.md` (relationship only)
+3. Master `docs/37_NIGHTRAVEN.md` §7 (BigBrother relationship only)
 4. `docs/NIGHTRAVEN_IMPROVEMENT_LOOP_CYCLE_PROMPT.md` (this file)
 5. Active repo overlay if improving a bootstrapped repo (e.g. `docs/NIGHTRAVEN_REPO_OVERLAY.md`)
 6. Active repo router / always-on rule (e.g. `nightraven-context-intent.mdc`)

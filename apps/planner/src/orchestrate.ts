@@ -7,9 +7,11 @@
 // Usage:
 //   npm run orchestrate -- --manifest <path> [--spec <path.json>] [--approve] [--stream <id>]
 //
-// Without --approve, Builder proposes but never writes (same human-gate law as index.ts).
-// Without a reachable LM Studio server, every agent falls back to its deterministic stub —
-// the pipeline still runs and reports honestly rather than failing closed.
+// Without --approve, the orchestrator stops after Phase 0 (layout planning) and never
+// runs Research → Architecture → Review → Build.
+// When the full pipeline does run, Planner/Researcher/Architect can fall back to their
+// deterministic stubs if LM Studio is unreachable. Builder does not fabricate fallback
+// proposals: it reports the missing brain honestly and writes nothing.
 
 import { dirname, join, resolve } from 'node:path'
 import { readFile } from 'node:fs/promises'

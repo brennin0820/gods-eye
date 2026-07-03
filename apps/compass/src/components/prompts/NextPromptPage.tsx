@@ -3,7 +3,7 @@ import { useCompassData } from '../../hooks/useCompassData'
 import { PromptCard } from './PromptCard'
 
 export function NextPromptPage() {
-  const { snapshot, nextTask, currentPhase } = useCompassData()
+  const { snapshot, nextTask, currentPhase, refresh } = useCompassData()
   const promptCards = snapshot?.promptCards ?? []
 
   if (!snapshot || !nextTask || !currentPhase) return null
@@ -25,6 +25,15 @@ export function NextPromptPage() {
           <code>promptGenerator.ts</code> for <strong>{nextTask.title}</strong> in{' '}
           <strong>{currentPhase.name}</strong>.
         </p>
+        <div className="next-move-box">
+          <strong>{snapshot.nextMove.action}</strong>
+          <p>{snapshot.nextMove.reason}</p>
+          <small>
+            Target: {snapshot.nextMove.targetAgent} ·{' '}
+            {snapshot.nextMove.approvalRequired ? 'approval required' : 'no approval required'}
+          </small>
+        </div>
+        <p className="prompt-text">{snapshot.nextMove.prompt}</p>
       </article>
 
       <div className="prompt-page__grid">
@@ -33,7 +42,17 @@ export function NextPromptPage() {
             <p className="card-copy">No prompt cards in snapshot.</p>
           </article>
         ) : (
-          promptCards.map((card) => <PromptCard key={card.id} promptCard={card} />)
+          promptCards.map((card) => (
+            <PromptCard
+              key={card.id}
+              promptCard={card}
+              projectPath={snapshot.meta.projectPath}
+              projectLabel={snapshot.project.name}
+              phaseName={currentPhase.name}
+              taskTitle={nextTask.title}
+              onGenerated={() => refresh({ silent: true })}
+            />
+          ))
         )}
       </div>
     </section>

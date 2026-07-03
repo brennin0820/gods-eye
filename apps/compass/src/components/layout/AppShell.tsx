@@ -1,5 +1,6 @@
 import type { ReactNode } from 'react'
 import { useCompassData } from '../../hooks/useCompassData'
+import { CommandMenuBar } from './CommandMenuBar'
 import { Sidebar } from './Sidebar'
 import { navItems, type NavItemId } from './navigation'
 
@@ -95,6 +96,7 @@ export function AppShell({ activeView, children, onViewChange }: AppShellProps) 
           </div>
         </header>
         {statusBanner}
+        <CommandMenuBar onViewChange={onViewChange} />
         {children}
       </main>
     </div>

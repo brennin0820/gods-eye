@@ -10,7 +10,7 @@
 
 **Motto chain:** NightRaven thinks · NightRaven builds · Auditor verifies · **Compass points** to the next correct step.
 
-Compass does **not** run agents, edit repos, or sync to the cloud. It **reads** NightRaven artifacts from disk (via dev-server API), **merges** local IndexedDB overrides, and **surfaces** scope, phase, priorities, blockers, decisions, audits, progress, prompts, and loop warnings.
+Compass does **not** run agents or sync to the cloud. It **reads** NightRaven artifacts from disk (via dev-server API), **merges** local IndexedDB overrides, and **surfaces** scope, phase, priorities, blockers, decisions, audits, progress, prompts, and loop warnings. It may also generate constrained local Markdown artifacts for the selected project via the dev API.
 
 ---
 
@@ -124,7 +124,7 @@ updateTask / updateDecision / … → persistOverrides → IndexedDB
 1. **Base snapshot (read-only from disk)** — rebuilt on refresh; sourced from consumer project's NightRaven files.
 2. **Overrides (IndexedDB)** — task/decision/blocker/audit/phase patches, settings; survives refresh.
 
-User edits in the UI write **overrides only**, never NightRaven files on disk.
+User edits in the UI normally write **overrides only**. The one exception is explicit artifact generation actions, which may write constrained files under `docs/generated/` or `.codex/generated/` in the selected project.
 
 ---
 
@@ -134,7 +134,7 @@ User edits in the UI write **overrides only**, never NightRaven files on disk.
 |------|---------------------|
 | Registry file | `scripts/nightraven-projects.conf` (monorepo root) |
 | Format | `ABS_PATH\|label\|role` per line (`framework`, `master`, `app`, `user-global`) |
-| Default project | **HimFLer** (`E:/NightRaven/HimFLer`) when no `localStorage` selection |
+| Default project | **NightRaven monorepo (framework)** when no `localStorage` selection |
 | Stored selection | `localStorage` key `compass.selectedProject` |
 | Switch project | Settings → registry list → Select |
 
@@ -162,6 +162,11 @@ Navigation ids live in `src/components/layout/navigation.ts`. Routes in `src/app
 | Phase | Nav id | Page | Primary files |
 |-------|--------|------|---------------|
 | 1 | `dashboard` | Dashboard | `components/dashboard/*` |
+| Monitor | `changed-files` | What Changed | `components/files/FileCatalogPage.tsx` |
+| Monitor | `files` | Files | `components/files/FileCatalogPage.tsx` |
+| Monitor | `runs` | Runs | `components/runs/RunsPage.tsx` |
+| Monitor | `detach` | Detach | `components/detach/DetachPage.tsx` |
+| Monitor | `evolution` | Evolution | `components/evolution/EvolutionPage.tsx` |
 | 2 | `scope-map` | Scope Map | `components/scope/ScopeMapPage.tsx` |
 | 2 | `roadmap` | Roadmap | `components/roadmap/RoadmapPage.tsx` |
 | 2 | `priority-board` | Priority Board | `components/priority/PriorityBoardPage.tsx` |
@@ -218,6 +223,8 @@ npm run preview  # preview server also attaches compassApiPlugin
 | New snapshot field | `types/snapshot.ts` → `buildSnapshot.ts` → `enrichSnapshot.ts` → consumers |
 | New override patch | `persistence.ts` → `snapshotMerge.ts` → `ProjectContext` updater |
 | New API route | `compassApiPlugin.ts` + `compassApi.ts` |
+| New monitor evidence field | `types/snapshot.ts` + `server/projectMonitor.ts` + consuming page |
+| New evolution tracker field | `types/snapshot.ts` + `server/evolutionTracker.ts` + `components/evolution/EvolutionPage.tsx` |
 | Prompt templates | `utils/promptGenerator.ts` |
 | Handoff parsing | `server/parseHandoff.ts` |
 
@@ -231,9 +238,49 @@ npm run preview  # preview server also attaches compassApiPlugin
 
 - Cloud sync / multi-user database
 - Autonomous AI agent execution from Compass UI
-- Repo auto-editing (writing NightRaven files from Compass)
+- Arbitrary repo auto-editing (generated Markdown artifacts only; no unrestricted writes)
 - Plugin / MCP manager UI
 - React Router / URL deep links (MVP uses in-memory view state)
+
+## Command Center monitor boundaries
+
+- Monitor truth comes from repo files, git status, ledgers, claims, audits, and explicit UI state.
+- AI may explain or draft prompts only after deterministic evidence exists; AI never marks work done.
+- File/folder explorer rows use friendly names and purposes, but must keep real `sourcePath` visible.
+- Windows Explorer actions go through `/api/system/open-path`; only `open` and `reveal` are allowed, and targets must stay inside the selected project.
+- Agent token/profile settings are local IndexedDB preferences only. They may describe provider credentials, model hints, roles, and bounded monitor permissions, but they do not make Compass an autonomous agent runner or plugin/MCP manager.
+
+## Autonomous app evolution add-on
+
+When Brent asks Compass to keep improving, use the app evolution loop for `apps/compass/` only.
+
+Maintain these app-local tracking files:
+
+- `PROJECT_STATE.md`
+- `APP_FINAL_FORM_GOAL.md`
+- `MOCKUP_COMPONENT_TRACKER.md`
+- `APP_INTEGRITY_REPORT.md`
+- `VERSION_EVOLUTION_PLAN.md`
+- `CHANGELOG_EVOLUTION.md`
+
+Loop:
+
+1. Track mockups, placeholders, unfinished components, fake-data paths, disconnected screens, incomplete flows, bugs, integrity gaps, and future upgrade opportunities.
+2. Define the current version final-form goal before calling the version complete.
+3. Build one focused improvement at a time toward that goal.
+4. Validate with the real Compass commands.
+5. Audit gaps, bugs, weak logic, disconnected systems, accessibility, persistence, and security risks.
+6. Fix critical/high integrity issues before planning the next version.
+7. Plan the next version as a meaningful upgrade, not random change.
+8. Repeat until Brent explicitly says stop.
+
+Rules:
+
+- Do not claim perfection; claim only that the version meets the documented completion gate when evidence proves it.
+- Do not leave mockups, fake data, inert controls, or disconnected screens untracked.
+- Do not rewrite working systems without a concrete correctness, maintainability, or user-flow reason.
+- Do not make Compass an autonomous agent runner unless Brent separately approves that product boundary change.
+- End each evolution task with current version, stage, goal, improvement completed, unfinished items found/completed, files changed, commands run, validation, remaining gaps, and next highest-impact action.
 
 ---
 

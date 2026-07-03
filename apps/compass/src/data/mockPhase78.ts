@@ -39,6 +39,9 @@ export const mockSettingsProfile: CompassSettingsProfile = {
   autoRefresh: false,
   showPhaseBadges: true,
   projectRootHint: 'e:\\NightRaven\\nightraven',
+  tokenVaultMode: 'browser_local',
+  agentProviders: [],
+  agentProfiles: [],
 }
 
 export const mockExtraTasks: Task[] = [

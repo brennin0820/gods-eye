@@ -695,3 +695,13 @@ Entry format:
 - Reasoning: Compass now derives monitored file content and metadata from one validated filesystem object, closing the remaining metadata-only race without changing product scope or weakening contained in-project symlink support.
 - Confidence: 98/100
 - Verification: `cd apps/compass && npm run test:monitor:all` passed sequentially (32 parser/API tests, 7 SSR tests, 6 browser/CDP tests); `npm run build` passed; `npm run lint` passed; `git diff --check` passed; no `compass-chrome-*` or `compass-browser-*` fixture/profile directory remained.
+
+## [2026-08-26] Feature Builder — Compass evolution-evidence containment
+- Event: BuildStarted
+- ApprovalGranted: "Standing ship signal for this task: implement the next concrete build slice (equivalent to \"code it\" / \"build\" / \"implement this plan\")."
+- Actions performed: Selected the outstanding High Command Center monitor-accuracy slice: route evolution-tracker evidence through the committed project-containment boundary and add focused regressions.
+- Files created: docs/board/BOARD.md; docs/board/T-001-contain-compass-evolution-evidence.md
+- Files modified: docs/ledgers/BUILD_LEDGER.md
+- Dependencies added: None
+- Reasoning: Evolution state must not import foreign project data through outside-root symlinks or disagree with the monitor catalog's contained evidence truth.
+- Confidence: 96/100

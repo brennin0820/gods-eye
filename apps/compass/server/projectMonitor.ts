@@ -39,6 +39,36 @@ type GitChange = {
   code: string
 }
 
+type ClaimEvidence = {
+  paths: Set<string>
+  sourceLabels: string[]
+  invalidSource?: string
+}
+
+type RunStatusEvidence = {
+  present: boolean
+  sourcePath?: string
+  invalid: boolean
+  total: number
+  pending: number
+  running: number
+  passed: number
+  failed: number
+}
+
+type LedgerEntry = {
+  heading: string
+  body: string
+  text: string
+  event?: string
+}
+
+type LedgerEvidence = {
+  present: boolean
+  entries: LedgerEntry[]
+  latest?: LedgerEntry
+}
+
 const catalogDefinitions: CatalogDefinition[] = [
   {
     name: 'Agent Instructions',
@@ -257,52 +287,620 @@ function normalizeRel(value: string): string {
   return value.replace(/\\/g, '/').replace(/^\.\//, '')
 }
 
+function isContainedPath(projectRoot: string, targetPath: string): boolean {
+  const relativePath = path.relative(projectRoot, targetPath)
+  return relativePath === '' || (
+    relativePath !== '..' &&
+    !relativePath.startsWith(`..${path.sep}`) &&
+    !path.isAbsolute(relativePath)
+  )
+}
+
+function isMissingPathError(error: unknown): boolean {
+  return Boolean(
+    error &&
+    typeof error === 'object' &&
+    'code' in error &&
+    (error.code === 'ENOENT' || error.code === 'ENOTDIR'),
+  )
+}
+
+export function resolveProjectSource(projectPath: string, relativePath: string) {
+  const sourcePath = path.sep === '\\' ? normalizeRel(relativePath) : relativePath.replace(/^\.\//, '')
+  const projectRoot = path.resolve(projectPath)
+  const absolutePath = path.resolve(projectRoot, sourcePath)
+  const invalidPath =
+    relativePath.includes('\0') ||
+    (path.win32.isAbsolute(relativePath) && !path.isAbsolute(relativePath)) ||
+    !isContainedPath(projectRoot, absolutePath)
+  if (invalidPath) {
+    return { sourcePath, absolutePath, entryExists: false, contained: false }
+  }
+
+  try {
+    const realProjectRoot = fs.realpathSync(projectRoot)
+    try {
+      fs.lstatSync(absolutePath)
+    } catch (error) {
+      if (!isMissingPathError(error)) {
+        return { sourcePath, absolutePath, entryExists: true, contained: false }
+      }
+      let existingAncestor = path.dirname(absolutePath)
+      while (isContainedPath(projectRoot, existingAncestor)) {
+        try {
+          const ancestorStat = fs.lstatSync(existingAncestor)
+          let realAncestor: string
+          try {
+            realAncestor = fs.realpathSync(existingAncestor)
+          } catch {
+            void ancestorStat
+            return { sourcePath, absolutePath, entryExists: true, contained: false }
+          }
+          if (!isContainedPath(realProjectRoot, realAncestor)) {
+            return { sourcePath, absolutePath, entryExists: true, contained: false }
+          }
+          break
+        } catch (ancestorError) {
+          if (!isMissingPathError(ancestorError)) {
+            return { sourcePath, absolutePath, entryExists: true, contained: false }
+          }
+          if (existingAncestor === projectRoot) break
+          const parentPath = path.dirname(existingAncestor)
+          if (parentPath === existingAncestor) break
+          existingAncestor = parentPath
+        }
+      }
+      return { sourcePath, absolutePath, entryExists: false, contained: false }
+    }
+
+    const realPath = fs.realpathSync(absolutePath)
+    if (!isContainedPath(realProjectRoot, realPath)) {
+      return { sourcePath, absolutePath, entryExists: true, contained: false }
+    }
+    return {
+      sourcePath,
+      absolutePath,
+      entryExists: true,
+      contained: true,
+      realPath,
+      stat: fs.statSync(realPath),
+    }
+  } catch {
+    return { sourcePath, absolutePath, entryExists: true, contained: false }
+  }
+}
+
+export function resolveFirstProjectSource(projectPath: string, candidates: string[]) {
+  const resolved = candidates.map((candidate) => resolveProjectSource(projectPath, candidate))
+  return resolved.find((candidate) => candidate.entryExists) ?? resolved[0]
+}
+
+function withResolvedProjectFile<T>(
+  source: ReturnType<typeof resolveProjectSource>,
+  operation: (descriptor: number, stat: fs.Stats) => T,
+): T | null {
+  if (!source.entryExists || !source.contained || !source.realPath || !source.stat?.isFile()) return null
+  let descriptor: number | undefined
+  try {
+    descriptor = fs.openSync(source.realPath, fs.constants.O_RDONLY | (fs.constants.O_NOFOLLOW ?? 0))
+    const openedStat = fs.fstatSync(descriptor)
+    if (!openedStat.isFile() || openedStat.dev !== source.stat.dev || openedStat.ino !== source.stat.ino) return null
+    return operation(descriptor, openedStat)
+  } catch {
+    return null
+  } finally {
+    if (descriptor !== undefined) fs.closeSync(descriptor)
+  }
+}
+
+export function inspectResolvedProjectFile(source: ReturnType<typeof resolveProjectSource>): fs.Stats | null {
+  return withResolvedProjectFile(source, (_descriptor, stat) => stat)
+}
+
+export function readResolvedProjectFile(
+  source: ReturnType<typeof resolveProjectSource>,
+): { content: string; stat: fs.Stats } | null {
+  return withResolvedProjectFile(source, (descriptor, stat) => ({
+    content: fs.readFileSync(descriptor, 'utf8'),
+    stat,
+  }))
+}
+
+export function readResolvedProjectSource(source: ReturnType<typeof resolveProjectSource>): string | null {
+  return readResolvedProjectFile(source)?.content ?? null
+}
+
+function normalizeClaimPath(projectPath: string, value: string): string | undefined {
+  const claimPath = value.trim()
+  if (!claimPath || claimPath.includes('\0')) return undefined
+  if (path.win32.isAbsolute(claimPath) && !path.isAbsolute(claimPath)) return undefined
+
+  const normalized = normalizeRel(claimPath)
+  if (!path.isAbsolute(claimPath) && normalized.split('/').some((segment) => segment === '..')) return undefined
+
+  const projectRoot = path.resolve(projectPath)
+  const absolutePath = path.isAbsolute(claimPath) ? path.resolve(claimPath) : path.resolve(projectRoot, normalized)
+  const relativePath = path.relative(projectRoot, absolutePath)
+  if (!relativePath || relativePath === '..' || relativePath.startsWith(`..${path.sep}`) || path.isAbsolute(relativePath)) {
+    return undefined
+  }
+
+  let existingPath = absolutePath
+  while (!fs.existsSync(existingPath)) {
+    try {
+      fs.lstatSync(existingPath)
+      return undefined
+    } catch {
+      const parentPath = path.dirname(existingPath)
+      if (parentPath === existingPath) return undefined
+      existingPath = parentPath
+    }
+  }
+
+  try {
+    const realProjectRoot = fs.realpathSync(projectRoot)
+    const realExistingPath = fs.realpathSync(existingPath)
+    const realRelativePath = path.relative(realProjectRoot, realExistingPath)
+    if (realRelativePath === '..' || realRelativePath.startsWith(`..${path.sep}`) || path.isAbsolute(realRelativePath)) {
+      return undefined
+    }
+  } catch {
+    return undefined
+  }
+
+  return normalizeRel(relativePath)
+}
+
 function catalogId(value: string): string {
   return normalizeRel(value).toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/^-|-$/g, '')
 }
 
 function readTextSafe(projectPath: string, relativePath: string): string {
-  const full = path.join(projectPath, relativePath)
-  if (!fs.existsSync(full)) return ''
-  return fs.readFileSync(full, 'utf8')
+  const source = resolveProjectSource(projectPath, relativePath)
+  return readResolvedProjectSource(source) ?? ''
 }
 
 function resolveCatalogPath(projectPath: string, definition: CatalogDefinition) {
   const candidates = [definition.canonicalPath, ...(definition.aliases ?? [])]
-  const sourcePath =
-    candidates.find((candidate) => fs.existsSync(path.join(projectPath, candidate))) ??
-    definition.canonicalPath
-  const absolutePath = path.resolve(projectPath, sourcePath)
-  const exists = fs.existsSync(absolutePath)
-  const stat = exists ? fs.statSync(absolutePath) : null
+  const resolved = resolveFirstProjectSource(projectPath, candidates)
+  const descriptorStat = definition.type === 'file' ? inspectResolvedProjectFile(resolved) : null
+  const metadataStat = descriptorStat ?? resolved.stat
+  const expectedType = definition.type === 'file' ? Boolean(descriptorStat) : metadataStat?.isDirectory()
+  const present = resolved.entryExists && resolved.contained && expectedType
   return {
-    sourcePath: normalizeRel(sourcePath),
-    absolutePath,
-    status: exists ? 'present' as const : 'missing' as const,
-    lastUpdated: stat?.mtime.toISOString(),
-    sizeBytes: stat?.isFile() ? stat.size : undefined,
+    sourcePath: resolved.sourcePath,
+    absolutePath: resolved.absolutePath,
+    status: present ? 'present' as const : 'missing' as const,
+    lastUpdated: present ? metadataStat?.mtime.toISOString() : undefined,
+    sizeBytes: present && descriptorStat ? descriptorStat.size : undefined,
+    invalidSource: resolved.entryExists && (!resolved.contained || !expectedType),
   }
 }
 
 function parseGitChanges(projectPath: string): Map<string, GitChange> {
   try {
-    const output = execFileSync('git', ['-C', projectPath, 'status', '--short'], {
+    const output = execFileSync('git', ['-C', projectPath, 'status', '--porcelain=v1', '-z'], {
       encoding: 'utf8',
       stdio: ['ignore', 'pipe', 'ignore'],
     })
     const changes = new Map<string, GitChange>()
-    for (const rawLine of output.split('\n')) {
-      const line = rawLine.trimEnd()
-      if (!line.trim()) continue
-      const code = line.slice(0, 2).trim() || 'modified'
-      const rawPath = line.slice(3).trim()
-      const sourcePath = normalizeRel(rawPath.includes(' -> ') ? rawPath.split(' -> ').at(-1) ?? rawPath : rawPath)
+    const entries = output.split('\0')
+    for (let index = 0; index < entries.length; index += 1) {
+      const entry = entries[index]
+      if (!entry) continue
+      const code = entry.slice(0, 2).trim() || 'modified'
+      const sourcePath = path.sep === '\\' ? normalizeRel(entry.slice(3)) : entry.slice(3).replace(/^\.\//, '')
       changes.set(sourcePath, { sourcePath, code })
+      if (code.includes('R') || code.includes('C')) index += 1
     }
     return changes
   } catch {
     return new Map()
   }
+}
+
+function isActiveClaimStatus(value: unknown): boolean | undefined {
+  if (typeof value === 'boolean') return value
+  if (typeof value !== 'string') return undefined
+  const normalized = value.toLowerCase().replace(/[\s_-]+/g, '')
+  if (['released', 'release', 'done', 'complete', 'completed', 'closed', 'inactive'].includes(normalized)) {
+    return false
+  }
+  if (['claimed', 'claim', 'active', 'running', 'inprogress'].includes(normalized)) return true
+  return undefined
+}
+
+function objectPathValue(value: Record<string, unknown>): string | undefined {
+  const candidates = ['path', 'file', 'sourcePath', 'targetPath', 'relativePath']
+  for (const candidate of candidates) {
+    const item = value[candidate]
+    if (typeof item === 'string' && item.trim()) return item
+  }
+  return undefined
+}
+
+function objectActiveClaimState(value: Record<string, unknown>): boolean | undefined {
+  const candidates = ['action', 'status', 'state']
+  for (const candidate of candidates) {
+    const state = isActiveClaimStatus(value[candidate])
+    if (state !== undefined) return state
+  }
+  return undefined
+}
+
+function collectJsonClaims(value: unknown, projectPath: string, paths: Set<string>, assumeActive = false): void {
+  if (typeof value === 'string') {
+    const claimPath = assumeActive ? normalizeClaimPath(projectPath, value) : undefined
+    if (claimPath) paths.add(claimPath)
+    return
+  }
+  if (!value || typeof value !== 'object') return
+
+  if (Array.isArray(value)) {
+    const latest = new Map<string, boolean>()
+    for (const item of value) {
+      if (!item || typeof item !== 'object' || Array.isArray(item)) {
+        collectJsonClaims(item, projectPath, paths, assumeActive)
+        continue
+      }
+      const object = item as Record<string, unknown>
+      const claimPath = objectPathValue(object)
+      const active = objectActiveClaimState(object)
+      const normalizedClaimPath = claimPath ? normalizeClaimPath(projectPath, claimPath) : undefined
+      if (claimPath) {
+        if (normalizedClaimPath && (active !== undefined || assumeActive)) {
+          latest.set(normalizedClaimPath, active ?? true)
+        }
+        continue
+      }
+      collectJsonClaims(item, projectPath, paths, assumeActive)
+    }
+    for (const [claimPath, active] of latest) {
+      if (active) paths.add(claimPath)
+    }
+    return
+  }
+
+  const object = value as Record<string, unknown>
+  const claimPath = objectPathValue(object)
+  const active = objectActiveClaimState(object)
+  const normalizedClaimPath = claimPath ? normalizeClaimPath(projectPath, claimPath) : undefined
+  if (claimPath) {
+    if (normalizedClaimPath && (active !== undefined || assumeActive) && (active ?? true)) {
+      paths.add(normalizedClaimPath)
+    }
+    return
+  }
+
+  for (const [key, nested] of Object.entries(object)) {
+    const directState = isActiveClaimStatus(nested)
+    const keyedClaimPath = normalizeClaimPath(projectPath, key)
+    const keyLooksLikePath = assumeActive || key.includes('/') || key.includes('\\') || /\.[A-Za-z0-9_-]+$/.test(key)
+    if (keyLooksLikePath && keyedClaimPath) {
+      if (directState === false || nested === null) continue
+      if (directState === true) {
+        paths.add(keyedClaimPath)
+        continue
+      }
+      if (nested && typeof nested === 'object' && !Array.isArray(nested)) {
+        const nestedState = objectActiveClaimState(nested as Record<string, unknown>)
+        if (nestedState === false) continue
+        if (nestedState === true) {
+          paths.add(keyedClaimPath)
+          continue
+        }
+      }
+      if (assumeActive) paths.add(keyedClaimPath)
+      continue
+    }
+    const childIsCurrentClaimSet = /^(?:claims|activeClaims|files|paths)$/i.test(key)
+    collectJsonClaims(nested, projectPath, paths, assumeActive || childIsCurrentClaimSet)
+  }
+}
+
+function hasUnsupportedClaimArrayMember(value: unknown, projectPath: string): boolean {
+  if (!Array.isArray(value)) return false
+  return value.some((item) => {
+    if (typeof item === 'string') return item.trim().length === 0
+    if (Array.isArray(item)) return hasUnsupportedClaimArrayMember(item, projectPath)
+    if (item === null || typeof item !== 'object') return true
+    const claimPath = objectPathValue(item as Record<string, unknown>)
+    return claimPath === undefined || normalizeClaimPath(projectPath, claimPath) === undefined
+  })
+}
+
+function hasUnsafeClaimPath(value: unknown, projectPath: string, assumeActive = false): boolean {
+  if (typeof value === 'string') return assumeActive && normalizeClaimPath(projectPath, value) === undefined
+  if (!value || typeof value !== 'object') return false
+  if (Array.isArray(value)) return value.some((item) => hasUnsafeClaimPath(item, projectPath, assumeActive))
+
+  const object = value as Record<string, unknown>
+  const claimPath = objectPathValue(object)
+  if (claimPath) return normalizeClaimPath(projectPath, claimPath) === undefined
+
+  return Object.entries(object).some(([key, nested]) => {
+    const childIsCurrentClaimSet = /^(?:claims|activeClaims|files|paths)$/i.test(key)
+    const keyLooksLikePath = assumeActive || key.includes('/') || key.includes('\\') || /\.[A-Za-z0-9_-]+$/.test(key)
+    if (keyLooksLikePath && normalizeClaimPath(projectPath, key) === undefined) return true
+    return hasUnsafeClaimPath(nested, projectPath, assumeActive || childIsCurrentClaimSet)
+  })
+}
+
+function isPathlessClaimRecord(value: unknown): boolean {
+  if (!value || typeof value !== 'object' || Array.isArray(value)) return false
+  const object = value as Record<string, unknown>
+  if (objectPathValue(object)) return false
+  return Object.keys(object).some((key) =>
+    /^(?:path|file|sourcePath|targetPath|relativePath|action|status|state|owner|stream|streamId|agent|reason|claimedAt|releasedAt|timestamp)$/i.test(key),
+  )
+}
+
+function parseJsonClaimEvidence(projectPath: string): ClaimEvidence {
+  const sourcePath = '.nightraven/file-claims.json'
+  const source = resolveProjectSource(projectPath, sourcePath)
+  if (source.entryExists && !source.contained) {
+    return { paths: new Set(), sourceLabels: [sourcePath], invalidSource: sourcePath }
+  }
+  const content = readTextSafe(projectPath, '.nightraven/file-claims.json')
+  const paths = new Set<string>()
+  if (!content.trim()) return { paths, sourceLabels: [sourcePath], invalidSource: sourcePath }
+  try {
+    const parsed = JSON.parse(content) as unknown
+    const parsedObject =
+      parsed !== null && typeof parsed === 'object' && !Array.isArray(parsed)
+        ? (parsed as Record<string, unknown>)
+        : undefined
+    const currentSetEntries = parsedObject
+      ? Object.entries(parsedObject).filter(([key]) => /^(?:claims|activeClaims|files|paths)$/i.test(key))
+      : []
+    const unsupportedCollection = currentSetEntries.some(([, value]) =>
+      value === null ||
+      !['string', 'object'].includes(typeof value) ||
+      isPathlessClaimRecord(value) ||
+      (typeof value === 'object' && !Array.isArray(value) && objectPathValue(value as Record<string, unknown>) !== undefined &&
+        normalizeClaimPath(projectPath, objectPathValue(value as Record<string, unknown>) ?? '') === undefined),
+    )
+    const unsupportedArrayMember =
+      (Array.isArray(parsed) && hasUnsupportedClaimArrayMember(parsed, projectPath)) ||
+      currentSetEntries.some(([, value]) => hasUnsupportedClaimArrayMember(value, projectPath))
+    const unsafeClaimPath = hasUnsafeClaimPath(parsed, projectPath, Array.isArray(parsed))
+    const recognizedObject =
+      parsedObject &&
+      Object.keys(parsedObject).some((key) =>
+        /^(?:claims|activeClaims|files|paths)$/i.test(key) || key.includes('/') || key.includes('\\') || /\.[A-Za-z0-9_-]+$/.test(key),
+      )
+    if (unsupportedCollection || unsupportedArrayMember || unsafeClaimPath || (!Array.isArray(parsed) && !recognizedObject)) {
+      return { paths, sourceLabels: [sourcePath], invalidSource: sourcePath }
+    }
+    collectJsonClaims(parsed, projectPath, paths, Array.isArray(parsed))
+    return { paths, sourceLabels: paths.size > 0 ? [sourcePath] : [] }
+  } catch {
+    return { paths, sourceLabels: [sourcePath], invalidSource: sourcePath }
+  }
+}
+
+function parseClaimLogEvidence(projectPath: string): ClaimEvidence {
+  const sourcePath = 'AGENT_WORK_LOG.md'
+  const source = resolveProjectSource(projectPath, sourcePath)
+  if (source.entryExists && !source.contained) {
+    return { paths: new Set(), sourceLabels: [sourcePath], invalidSource: sourcePath }
+  }
+  const content = readTextSafe(projectPath, 'AGENT_WORK_LOG.md')
+  const paths = new Set<string>()
+  if (!content.trim()) return { paths, sourceLabels: [] }
+
+  const activeOwners = new Map<string, string>()
+  const claimLine = /^- \[(CLAIMED|RELEASED)\] `([^`]+)` — stream:([^\s—]+) — ([^\s—]+)(?: — (.*))?$/
+  for (const line of content.split('\n')) {
+    const match = line.match(claimLine)
+    if (!match) continue
+    const claimPath = normalizeClaimPath(projectPath, match[2])
+    if (!claimPath) continue
+    const streamId = match[3]
+    if (match[1] === 'CLAIMED') {
+      activeOwners.set(claimPath, streamId)
+    } else if (activeOwners.get(claimPath) === streamId) {
+      activeOwners.delete(claimPath)
+    }
+  }
+  for (const claimPath of activeOwners.keys()) paths.add(claimPath)
+
+  return { paths, sourceLabels: paths.size > 0 ? ['AGENT_WORK_LOG.md'] : [] }
+}
+
+function buildClaimEvidence(projectPath: string): ClaimEvidence {
+  if (resolveProjectSource(projectPath, '.nightraven/file-claims.json').entryExists) {
+    return parseJsonClaimEvidence(projectPath)
+  }
+  return parseClaimLogEvidence(projectPath)
+}
+
+function normalizeRunState(value: string): keyof Pick<RunStatusEvidence, 'pending' | 'running' | 'passed' | 'failed'> | undefined {
+  const normalized = value.trim().toLowerCase()
+  if (normalized === 'pending' || normalized === 'running' || normalized === 'passed' || normalized === 'failed') return normalized
+  return undefined
+}
+
+export function parseRunStatusEvidence(projectPath: string): RunStatusEvidence {
+  const source = resolveFirstProjectSource(projectPath, ['docs/PARALLEL_RUN_STATUS.md', 'PARALLEL_RUN_STATUS.md'])
+  const sourcePath = source.entryExists ? source.sourcePath : undefined
+  const evidence: RunStatusEvidence = {
+    present: Boolean(sourcePath),
+    sourcePath,
+    invalid: source.entryExists && !source.contained,
+    total: 0,
+    pending: 0,
+    running: 0,
+    passed: 0,
+    failed: 0,
+  }
+  if (!sourcePath) return evidence
+
+  const content = readTextSafe(projectPath, sourcePath)
+  const rowPattern = /^\|\s*([^|]*?)\s*\|\s*([^|]*?)\s*\|\s*([^|]*?)\s*\|\s*([^|]*?)\s*\|\s*([^|]*?)\s*\|$/
+  const separatorCell = /^:?-{3,}:?$/
+  const recognizedHeaders = new Set([
+    'stream|division|phase|state|detail',
+    'stream|agent|scope|status|notes',
+  ])
+  let recognizedHeader = false
+  let recognizedSeparator = false
+  let recognizedCurrentState = false
+  let recognizedEmptyState = false
+
+  if (!content.trim()) evidence.invalid = true
+  for (const line of content.split(/\r?\n/)) {
+    if (!line.trimStart().startsWith('|')) continue
+    const row = line.trim().match(rowPattern)
+    if (!row) {
+      evidence.invalid = true
+      continue
+    }
+
+    const cells = row.slice(1).map((cell) => cell.trim())
+    const [stream, , , stateCell] = cells
+    const headerKey = cells.map((cell) => cell.toLowerCase()).join('|')
+    if (recognizedHeaders.has(headerKey)) {
+      if (recognizedHeader || recognizedSeparator || recognizedCurrentState || recognizedEmptyState) evidence.invalid = true
+      recognizedHeader = true
+      continue
+    }
+    if (cells.every((cell) => separatorCell.test(cell))) {
+      if (!recognizedHeader || recognizedSeparator || recognizedCurrentState || recognizedEmptyState) evidence.invalid = true
+      recognizedSeparator = true
+      continue
+    }
+    if (!recognizedHeader || !recognizedSeparator) evidence.invalid = true
+    const canonicalEmptyRow =
+      cells[0] === '—' &&
+      cells[1] === '—' &&
+      cells[2] === '—' &&
+      cells[3] === '—' &&
+      cells[4].toLowerCase() === 'no streams run yet'
+    if (canonicalEmptyRow) {
+      if (recognizedEmptyState || recognizedCurrentState) evidence.invalid = true
+      recognizedEmptyState = true
+      continue
+    }
+
+    const state = normalizeRunState(stateCell)
+    if (!stream || !state) {
+      evidence.invalid = true
+      continue
+    }
+    if (recognizedEmptyState) evidence.invalid = true
+    recognizedCurrentState = true
+    evidence.total += 1
+    evidence[state] += 1
+  }
+  if (!recognizedHeader || !recognizedSeparator || (!recognizedCurrentState && !recognizedEmptyState)) evidence.invalid = true
+  return evidence
+}
+
+function parseLedgerEvidence(content: string): LedgerEvidence {
+  const headingPattern = /^## \[[^\]]+\] .+$/gm
+  const matches = [...content.matchAll(headingPattern)]
+  const entries = matches.map((match, index) => {
+    const start = match.index ?? 0
+    const end = matches[index + 1]?.index ?? content.length
+    const text = content.slice(start, end).trim()
+    const [heading = '', ...bodyLines] = text.split('\n')
+    const body = bodyLines.join('\n')
+    const event = bodyLines.find((line) => line.startsWith('- Event:'))?.replace('- Event:', '').trim()
+    return { heading: heading.replace(/^## /, ''), body, text, event }
+  })
+  return { present: content.trim().length > 0, entries, latest: entries.at(-1) }
+}
+
+function normalizeLedgerPathCandidate(value: string): string {
+  const trimmed = value.trim()
+  const unwrapped =
+    (trimmed.startsWith('`') && trimmed.endsWith('`')) ||
+    (trimmed.startsWith('"') && trimmed.endsWith('"')) ||
+    (trimmed.startsWith("'") && trimmed.endsWith("'"))
+      ? trimmed.slice(1, -1)
+      : trimmed
+  return normalizeRel(unwrapped).trim()
+}
+
+type AuditPathOutcome = 'pass' | 'fail' | 'pending'
+
+function auditOutcomeForPath(entry: LedgerEntry, sourcePath: string): AuditPathOutcome | undefined {
+  const normalizedPath = normalizeRel(sourcePath).trim()
+  let outcome: AuditPathOutcome | undefined
+  for (const rawLine of entry.text.split('\n')) {
+    const line = rawLine.replaceAll('\\', '/')
+    const findings = line.match(/^- Findings:\s*(.*)$/i)
+    if (!findings) continue
+    for (const clause of findings[1].split(';')) {
+      const qualified = normalizeLedgerPathCandidate(clause).match(
+        /^(pass(?:ed)?|fail(?:ed)?|blocked|fix_needed|scope_creep|needs_user_decision|pending|in_progress|fixed|verified|audited|reviewed)\s+(.+)$/i,
+      )
+      if (!qualified || normalizeLedgerPathCandidate(qualified[2]) !== normalizedPath) continue
+      if (/^(?:pending|in_progress)$/i.test(qualified[1])) outcome = 'pending'
+      else if (/^(?:fail(?:ed)?|blocked|fix_needed|scope_creep|needs_user_decision)$/i.test(qualified[1])) outcome = 'fail'
+      else outcome = 'pass'
+    }
+  }
+  return outcome
+}
+
+function ledgerEntryMentionsPath(entry: LedgerEntry, sourcePath: string): boolean {
+  const normalizedPath = normalizeRel(sourcePath).trim()
+  if (auditOutcomeForPath(entry, sourcePath)) return true
+
+  for (const rawLine of entry.text.split('\n')) {
+    const line = rawLine.replaceAll('\\', '/')
+    const field = line.match(/^- ([^:]+):\s*(.*)$/)
+    if (!field) continue
+    const fieldName = field[1].trim().toLowerCase()
+    const isFileList = /^(?:files? (?:created|modified|changed|deleted|audited|reviewed)|paths?|targets?|scope)$/.test(fieldName)
+    for (const clause of field[2].split(';')) {
+      const candidate = normalizeLedgerPathCandidate(clause)
+      if (isFileList) {
+        if (candidate === normalizedPath) return true
+      }
+    }
+  }
+  return false
+}
+
+function latestLedgerEntryForPath(evidence: LedgerEvidence, sourcePath: string): LedgerEntry | undefined {
+  for (const entry of [...evidence.entries].reverse()) {
+    if (ledgerEntryMentionsPath(entry, sourcePath)) return entry
+  }
+  return undefined
+}
+
+function ledgerEntryIsActiveBuild(entry: LedgerEntry | undefined): boolean {
+  if (!entry) return false
+  if (entry.event && ['BuildStarted', 'BuildRunning'].includes(entry.event)) return true
+  return /running|in progress/i.test(entry.text) && !ledgerEntryIsCompleteBuild(entry)
+}
+
+function ledgerEntryIsCompleteBuild(entry: LedgerEntry | undefined): boolean {
+  if (!entry) return false
+  if (entry.event && ['FeatureBuilt', 'BuildCompleted'].includes(entry.event)) return true
+  return /completed|complete|done|passed/i.test(entry.text)
+}
+
+function ledgerEntryIsFailedAudit(entry: LedgerEntry | undefined): boolean {
+  if (!entry) return false
+  const findings = entry.body
+    .split('\n')
+    .filter((line) => /^- Findings:/i.test(line))
+    .map((line) => line.replace(/^- Findings:\s*/i, ''))
+    .flatMap((value) => value.split(';'))
+    .map((value) => value.trim())
+  const failureToken = /\b(?:fail(?:ed|ures?)?|fix_needed|blocked|scope_creep|needs_user_decision)\b/i
+  const fullyNegatedFailure = /^(?:no|zero|without)\s+(?:(?:critical|high|medium|low|remaining|unresolved|known|browser|runtime|test|tests|build|audit|verification|monitor|blocking)\s+){0,6}(?:fail(?:ed|ures?)?|fix_needed|blocked|scope_creep|needs_user_decision)$/i
+  return findings.some((finding) => failureToken.test(finding) && !fullyNegatedFailure.test(finding))
+}
+
+function ledgerEntryIsPendingAudit(entry: LedgerEntry | undefined): boolean {
+  if (!entry) return false
+  if (entry.event === 'AuditStarted') return true
+  return !entry.event && /\bpending\b|\bin_progress\b/i.test(entry.text)
 }
 
 function pathIsExpected(sourcePath: string, tasks: Task[], knownMonitorFile: boolean): FilePrecisionState['expected'] {
@@ -323,60 +921,116 @@ function buildPrecision(args: {
   gitChanges: Map<string, GitChange>
   tasks: Task[]
   knownMonitorFile: boolean
-  buildLedgerText: string
-  auditLedgerText: string
-  claimText: string
+  buildLedgerEvidence: LedgerEvidence
+  auditLedgerEvidence: LedgerEvidence
+  claimEvidence: ClaimEvidence
+  runStatusEvidence: RunStatusEvidence
+  invalidSource?: boolean
 }): FilePrecisionState {
   const changed = args.gitChanges.has(args.sourcePath) ? 'yes' : 'no'
   const expected = changed === 'yes' ? pathIsExpected(args.sourcePath, args.tasks, args.knownMonitorFile) : 'unknown'
-  const claim = args.claimText.includes(args.sourcePath) ? 'claimed' : 'unclaimed'
-  const buildLedgerMentionsFile = args.buildLedgerText.includes(args.sourcePath)
-  const auditLedgerMentionsFile = args.auditLedgerText.includes(args.sourcePath)
-  const auditLooksFailed = /fail|fix_needed|blocked|scope_creep/i.test(args.auditLedgerText)
-  const buildLooksActive = /BuildStarted|running|in progress/i.test(args.buildLedgerText)
-  const buildLooksComplete = /FeatureBuilt|BuildCompleted|completed|done/i.test(args.buildLedgerText)
+  const invalidClaimEvidence = args.claimEvidence.invalidSource === args.sourcePath
+  const claim = args.claimEvidence.paths.has(args.sourcePath) || invalidClaimEvidence ? 'claimed' : 'unclaimed'
+  const latestBuildForFile = latestLedgerEntryForPath(args.buildLedgerEvidence, args.sourcePath)
+  const latestAuditForFile = latestLedgerEntryForPath(args.auditLedgerEvidence, args.sourcePath)
+  const buildLedgerMentionsFile = Boolean(latestBuildForFile)
+  const auditLedgerMentionsFile = Boolean(latestAuditForFile)
+  const pathAuditOutcome = latestAuditForFile
+    ? auditOutcomeForPath(latestAuditForFile, args.sourcePath)
+    : undefined
+  const auditLooksFailed = pathAuditOutcome
+    ? pathAuditOutcome === 'fail'
+    : ledgerEntryIsFailedAudit(latestAuditForFile ?? args.auditLedgerEvidence.latest)
+  const auditLooksPending = pathAuditOutcome
+    ? pathAuditOutcome === 'pending'
+    : ledgerEntryIsPendingAudit(latestAuditForFile)
+  const currentRunActive = args.runStatusEvidence.running > 0 || args.runStatusEvidence.pending > 0
+  const currentRunFailed = args.runStatusEvidence.failed > 0
+  const currentRunInvalid = args.runStatusEvidence.invalid
+  const latestBuildEntry = changed === 'yes'
+    ? latestBuildForFile
+    : latestBuildForFile ?? args.buildLedgerEvidence.latest
+  const buildLooksActive = ledgerEntryIsActiveBuild(latestBuildEntry)
+  const buildLooksComplete = ledgerEntryIsCompleteBuild(latestBuildEntry)
+  const isRunStatusFile = args.runStatusEvidence.sourcePath === args.sourcePath
+  const runStatus: FilePrecisionState['runStatus'] = !isRunStatusFile
+    ? undefined
+    : currentRunInvalid
+      ? 'invalid'
+      : currentRunFailed
+        ? 'failed'
+        : currentRunActive
+          ? 'active'
+          : args.runStatusEvidence.passed > 0
+            ? 'passed'
+            : 'empty'
 
   let build: FilePrecisionState['build'] = 'not_required'
-  if (changed === 'yes') {
-    build = buildLedgerMentionsFile || buildLooksComplete ? 'built' : buildLooksActive ? 'planned' : 'changed'
+  if (isRunStatusFile && currentRunActive) {
+    build = 'planned'
+  } else if (isRunStatusFile && args.runStatusEvidence.passed > 0 && !currentRunFailed) {
+    build = 'built'
+  } else if (changed === 'yes') {
+    build = buildLooksActive ? 'planned' : buildLooksComplete ? 'built' : 'changed'
   } else if (args.exists && args.monitorRole === 'build') {
-    build = args.buildLedgerText ? 'built' : 'not_started'
+    build = args.buildLedgerEvidence.present ? (buildLooksActive ? 'planned' : 'built') : 'not_started'
   }
 
   let audit: FilePrecisionState['audit'] = 'not_required'
-  if (changed === 'yes' && args.monitorRole !== 'memory') {
-    audit = auditLedgerMentionsFile ? (auditLooksFailed ? 'fail' : 'pass') : 'required'
+  if (args.invalidSource) {
+    audit = 'fail'
+  } else if (isRunStatusFile && (currentRunFailed || currentRunInvalid)) {
+    audit = 'fail'
+  } else if (changed === 'yes' && args.monitorRole !== 'memory') {
+    audit = auditLedgerMentionsFile ? (auditLooksPending ? 'required' : auditLooksFailed ? 'fail' : 'pass') : 'required'
   } else if (args.monitorRole === 'audit') {
-    audit = args.auditLedgerText ? (auditLooksFailed ? 'fail' : 'pass') : 'pending'
+    audit = args.auditLedgerEvidence.present ? (auditLooksFailed ? 'fail' : 'pass') : 'pending'
   }
 
-  const blocking = expected === 'no' || claim === 'claimed' || audit === 'required' || audit === 'fail'
+  const blocking = args.invalidSource || expected === 'no' || claim === 'claimed' || audit === 'required' || audit === 'fail'
   const evidence = [
     changed === 'yes' ? `git status: ${args.gitChanges.get(args.sourcePath)?.code ?? 'changed'}` : 'git status: clean for this path',
-    claim === 'claimed' ? 'claim evidence mentions this path' : 'no active claim evidence for this path',
+    args.invalidSource ? 'monitored evidence source resolves outside the project, is broken, or has the wrong type' : undefined,
+    invalidClaimEvidence
+      ? 'canonical claim evidence is blank, malformed, or uses an unsupported shape'
+      : claim === 'claimed'
+      ? `active claim found in ${args.claimEvidence.sourceLabels.join(', ')}`
+      : 'no active claim evidence for this path',
+    isRunStatusFile
+      ? currentRunInvalid
+        ? 'current run-status evidence is blank, malformed, or uses an unsupported stream state'
+        : `${args.runStatusEvidence.total} run stream(s): ${args.runStatusEvidence.running} running, ${args.runStatusEvidence.failed} failed, ${args.runStatusEvidence.passed} passed`
+      : undefined,
     buildLedgerMentionsFile ? 'build ledger mentions this path' : undefined,
     auditLedgerMentionsFile ? 'audit ledger mentions this path' : undefined,
+    !buildLedgerMentionsFile && args.buildLedgerEvidence.latest
+      ? `latest build ledger event: ${args.buildLedgerEvidence.latest.event ?? args.buildLedgerEvidence.latest.heading}`
+      : undefined,
+    !auditLedgerMentionsFile && args.auditLedgerEvidence.latest
+      ? `latest audit ledger event: ${args.auditLedgerEvidence.latest.event ?? args.auditLedgerEvidence.latest.heading}`
+      : undefined,
   ].filter((item): item is string => Boolean(item))
 
   let nextAction = 'No action needed.'
-  if (!args.exists) nextAction = 'Create or attach this file if required for the current lifecycle.'
+  if (args.invalidSource) nextAction = 'Replace the invalid evidence source with the expected file or folder inside this project.'
+  else if (invalidClaimEvidence) nextAction = 'Repair the canonical claim evidence before marking done.'
+  else if (claim === 'claimed') nextAction = 'Release or resolve the active file claim.'
+  else if (isRunStatusFile && currentRunInvalid) nextAction = 'Repair the current run-status evidence before marking done.'
+  else if (!args.exists) nextAction = 'Create or attach this file if required for the current lifecycle.'
   else if (expected === 'no') nextAction = 'Review this unexpected change before forward progress.'
   else if (audit === 'required') nextAction = 'Audit this changed file before marking done.'
   else if (audit === 'fail') nextAction = 'Fix the failed audit finding for this file.'
-  else if (claim === 'claimed') nextAction = 'Release or resolve the active file claim.'
   else if (changed === 'yes') nextAction = 'Confirm this changed file is recorded in build evidence.'
 
-  return { changed, expected, claim, build, audit, blocking, nextAction, evidence }
+  return { changed, expected, claim, build, audit, runStatus, blocking, nextAction, evidence }
 }
 
 export function buildProjectFileCatalog(projectPath: string, context?: Partial<MonitorContext>): FileCatalogEntry[] {
   const gitChanges = parseGitChanges(projectPath)
-  const buildLedgerText = readTextSafe(projectPath, 'docs/ledgers/BUILD_LEDGER.md')
-  const auditLedgerText = readTextSafe(projectPath, 'docs/ledgers/AUDIT_LEDGER.md')
-  const claimText = [
-    readTextSafe(projectPath, '.nightraven/file-claims.json'),
-    readTextSafe(projectPath, 'AGENT_WORK_LOG.md'),
-  ].join('\n')
+  const buildLedgerEvidence = parseLedgerEvidence(readTextSafe(projectPath, 'docs/ledgers/BUILD_LEDGER.md'))
+  const auditLedgerEvidence = parseLedgerEvidence(readTextSafe(projectPath, 'docs/ledgers/AUDIT_LEDGER.md'))
+  const claimEvidence = buildClaimEvidence(projectPath)
+  const runStatusEvidence = parseRunStatusEvidence(projectPath)
   const tasks = context?.tasks ?? []
   const entries: FileCatalogEntry[] = []
   const seen = new Set<string>()
@@ -408,9 +1062,11 @@ export function buildProjectFileCatalog(projectPath: string, context?: Partial<M
         gitChanges,
         tasks,
         knownMonitorFile: true,
-        buildLedgerText,
-        auditLedgerText,
-        claimText,
+        buildLedgerEvidence,
+        auditLedgerEvidence,
+        claimEvidence,
+        runStatusEvidence,
+        invalidSource: resolved.invalidSource,
       }),
     })
   }
@@ -418,9 +1074,10 @@ export function buildProjectFileCatalog(projectPath: string, context?: Partial<M
   for (const change of gitChanges.values()) {
     if (seen.has(change.sourcePath)) continue
     if (change.sourcePath.startsWith('node_modules/') || change.sourcePath.startsWith('dist/')) continue
-    const absolutePath = path.resolve(projectPath, change.sourcePath)
-    const exists = fs.existsSync(absolutePath)
-    const stat = exists ? fs.statSync(absolutePath) : null
+    seen.add(change.sourcePath)
+    const resolved = resolveProjectSource(projectPath, change.sourcePath)
+    const exists = resolved.entryExists && resolved.contained
+    const stat = exists ? resolved.stat : undefined
     entries.push({
       id: `changed-${catalogId(change.sourcePath)}`,
       name: path.basename(change.sourcePath),
@@ -429,7 +1086,7 @@ export function buildProjectFileCatalog(projectPath: string, context?: Partial<M
       canonicalPath: change.sourcePath,
       aliases: [],
       sourcePath: change.sourcePath,
-      absolutePath,
+      absolutePath: resolved.absolutePath,
       status: exists ? 'present' : 'missing',
       lastUpdated: stat?.mtime.toISOString(),
       sizeBytes: stat?.isFile() ? stat.size : undefined,
@@ -444,9 +1101,50 @@ export function buildProjectFileCatalog(projectPath: string, context?: Partial<M
         gitChanges,
         tasks,
         knownMonitorFile: false,
-        buildLedgerText,
-        auditLedgerText,
-        claimText,
+        buildLedgerEvidence,
+        auditLedgerEvidence,
+        claimEvidence,
+        runStatusEvidence,
+        invalidSource: resolved.entryExists && !resolved.contained,
+      }),
+    })
+  }
+
+  for (const sourcePath of [...claimEvidence.paths].sort()) {
+    if (seen.has(sourcePath)) continue
+    const safeSourcePath = normalizeClaimPath(projectPath, sourcePath)
+    if (!safeSourcePath) continue
+    seen.add(sourcePath)
+    const absolutePath = path.resolve(projectPath, safeSourcePath)
+    const exists = fs.existsSync(absolutePath)
+    const stat = exists ? fs.lstatSync(absolutePath) : null
+    entries.push({
+      id: `claimed:${safeSourcePath}`,
+      name: path.basename(safeSourcePath),
+      type: stat?.isDirectory() ? 'folder' : 'file',
+      purpose: 'Project file with an active ownership claim; resolve or release it before detach.',
+      canonicalPath: safeSourcePath,
+      aliases: [],
+      sourcePath: safeSourcePath,
+      absolutePath,
+      status: exists ? 'present' : 'missing',
+      lastUpdated: stat?.mtime.toISOString(),
+      sizeBytes: stat?.isFile() ? stat.size : undefined,
+      monitorRole: 'source',
+      usedByMonitor: true,
+      requiredFor: ['build', 'detach'],
+      precision: buildPrecision({
+        projectPath,
+        sourcePath: safeSourcePath,
+        monitorRole: 'source',
+        exists,
+        gitChanges,
+        tasks,
+        knownMonitorFile: false,
+        buildLedgerEvidence,
+        auditLedgerEvidence,
+        claimEvidence,
+        runStatusEvidence,
       }),
     })
   }
@@ -482,8 +1180,10 @@ export function buildProjectMonitorSnapshot(
   )
   const blockingFiles = fileCatalog.filter((entry) => entry.precision.blocking)
   const handoff = fileCatalog.find((entry) => entry.name === 'Project Handoff')
+  const handoffTimestamp = handoff?.lastUpdated ? new Date(handoff.lastUpdated).getTime() : Number.NaN
   const staleHandoff =
-    handoff?.lastUpdated && Date.now() - new Date(handoff.lastUpdated).getTime() > 7 * 24 * 60 * 60 * 1000
+    handoff?.lastUpdated !== undefined &&
+    (!Number.isFinite(handoffTimestamp) || Date.now() - handoffTimestamp > 7 * 24 * 60 * 60 * 1000)
   const openCriticalBlocker = context.blockers.some(
     (blocker) => blocker.status === 'open' && (blocker.severity === 'critical' || blocker.severity === 'high'),
   )
@@ -498,6 +1198,13 @@ export function buildProjectMonitorSnapshot(
     context.auditItems.length > 0 && context.auditItems.every((audit) => audit.status === 'pass')
   const activeClaim = fileCatalog.some((entry) => entry.precision.claim === 'claimed')
   const activeBuild = fileCatalog.some((entry) => entry.precision.build === 'planned')
+  const failedRunStatus = fileCatalog.some(
+    (entry) => entry.monitorRole === 'run' && entry.precision.runStatus === 'failed',
+  )
+  const invalidRunStatus = fileCatalog.some(
+    (entry) => entry.monitorRole === 'run' && entry.precision.runStatus === 'invalid',
+  )
+  const blockedRunStatus = failedRunStatus || invalidRunStatus
   const buildEvidence = fileCatalog.some((entry) => entry.monitorRole === 'build' && entry.status === 'present')
   const openHighDecision = context.decisions.some(
     (decision) => decision.status === 'open' && decision.impact === 'high',
@@ -519,16 +1226,20 @@ export function buildProjectMonitorSnapshot(
           ? 'A high-impact decision remains open.'
           : 'Scope evidence is present.'
   const buildStatus: MonitorDimension['status'] =
-    activeBuild ? 'watch' : changedFiles.length > 0 ? 'watch' : buildEvidence ? 'clear' : 'missing'
+    blockedRunStatus ? 'failed' : activeBuild ? 'watch' : changedFiles.length > 0 ? 'watch' : buildEvidence ? 'clear' : 'missing'
   const auditStatus: MonitorDimension['status'] =
     failedAudit ? 'failed' : pendingAudit ? 'blocked' : auditPassed ? 'clear' : 'missing'
   const decisionStatus: MonitorDimension['status'] = openHighDecision ? 'watch' : 'clear'
   const detachReady =
     changedFiles.length === 0 &&
+    missingRequiredFiles.length === 0 &&
+    !staleHandoff &&
     !pendingAudit &&
     !failedAudit &&
     !activeClaim &&
+    !activeBuild &&
     context.handoffFound &&
+    context.overlayFound &&
     !openCriticalBlocker
   const detachStatus: MonitorDimension['status'] = detachReady ? 'ready' : openCriticalBlocker ? 'blocked' : 'watch'
 
@@ -539,8 +1250,11 @@ export function buildProjectMonitorSnapshot(
   if (activeBuild) lifecycle = 'in_build'
   if (changedFiles.length > 0 && !activeBuild) lifecycle = 'built'
   if (pendingAudit) lifecycle = 'in_audit'
-  if (failedAudit || openCriticalBlocker || blockingFiles.some((entry) => entry.precision.expected === 'no')) {
+  if (blockedRunStatus || failedAudit || openCriticalBlocker || blockingFiles.some((entry) => entry.precision.expected === 'no')) {
     lifecycle = 'fix_needed'
+  }
+  if ((missingRequiredFiles.length > 0 || !context.overlayFound) && lifecycle !== 'fix_needed') {
+    lifecycle = 'attached'
   }
   if (detachReady) lifecycle = 'ready_to_detach'
 
@@ -549,9 +1263,10 @@ export function buildProjectMonitorSnapshot(
       context.overlayFound ? 'Project overlay found' : 'Project overlay missing',
       `${missingRequiredFiles.length} required attach/align file(s) missing`,
     ]),
-    dimension('build', 'Build', buildStatus, changedFiles.length > 0 ? `${changedFiles.length} changed file(s) detected.` : 'No changed files detected by git status.', [
+    dimension('build', 'Build', buildStatus, invalidRunStatus ? 'Current run status evidence is invalid and must be repaired.' : failedRunStatus ? 'Current run status has failed stream evidence.' : changedFiles.length > 0 ? `${changedFiles.length} changed file(s) detected.` : 'No changed files detected by git status.', [
       buildEvidence ? 'Build ledger present' : 'No build ledger present',
       `${changedFiles.length} changed file(s)`,
+      invalidRunStatus ? 'Run status evidence is invalid' : failedRunStatus ? 'Run status reports failed stream(s)' : activeBuild ? 'Run status reports active stream(s)' : 'No active run status detected',
     ]),
     dimension('audit', 'Audit', auditStatus, failedAudit ? 'Audit evidence is failing or blocked.' : pendingAudit ? 'Audit is required before done.' : 'No failing audit evidence.', [
       `${context.auditItems.length} audit item(s)`,
@@ -562,10 +1277,12 @@ export function buildProjectMonitorSnapshot(
     ]),
     dimension('shippingDetach', 'Shipping / Detach', detachStatus, detachReady ? 'Detach gates are clear.' : 'Detach is blocked until evidence, audit, claims, and blockers are clear.', [
       activeClaim ? 'Active file claim detected' : 'No active file claims detected',
+      activeBuild ? 'Active run/build evidence detected' : 'No active run/build evidence detected',
       openCriticalBlocker ? 'Open high/critical blocker detected' : 'No high/critical blocker detected',
     ]),
-    dimension('memory', 'Memory', memoryStatus, !context.handoffFound ? 'Project handoff is missing.' : staleHandoff ? 'Project handoff is stale.' : 'Project handoff is fresh enough for monitor use.', [
+    dimension('memory', 'Memory', memoryStatus, !context.handoffFound ? 'Project handoff is missing.' : staleHandoff && !Number.isFinite(handoffTimestamp) ? 'Project handoff freshness evidence is invalid and must be repaired before detach.' : staleHandoff ? 'Project handoff is stale and must be refreshed before detach.' : 'Project handoff is fresh enough for monitor use.', [
       context.handoffFound ? 'Project handoff found' : 'Project handoff missing',
+      staleHandoff && !Number.isFinite(handoffTimestamp) ? 'Handoff freshness evidence is invalid' : staleHandoff ? 'Handoff freshness gate blocks detach' : 'Handoff freshness gate clear',
       handoff?.lastUpdated ? `Handoff updated ${handoff.lastUpdated}` : 'No handoff timestamp',
     ]),
   ]

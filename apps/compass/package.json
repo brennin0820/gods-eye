@@ -7,6 +7,10 @@
     "dev": "vite",
     "build": "tsc -b && vite build",
     "lint": "eslint .",
+    "test:monitor:all": "npm run test:monitor && npm run test:monitor:render && npm run test:monitor:browser",
+    "test:monitor:browser": "node --test --experimental-strip-types server/monitorBrowserSmoke.test.ts",
+    "test:monitor:render": "node --test --experimental-strip-types server/monitorRenderedSmoke.test.ts",
+    "test:monitor": "node --test --experimental-strip-types server/projectMonitor.test.ts",
     "preview": "vite preview"
   },
   "dependencies": {

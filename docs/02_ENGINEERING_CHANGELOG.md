@@ -991,3 +991,62 @@ Append-only (`+#`). Corrections use **Supersedes** lines — never delete histor
 - **Fix:** bash 3.2 (macOS) misparses `God's` inside `"$(cat <<EOF …)"` heredocs — use `message+=` concatenation or unquoted heredoc with variable substitution outside the apostrophe token
 
 **Cross-links:** [`HOOKS_SETUP.md`](HOOKS_SETUP.md) · [`NIGHTRAVEN_UNIFIED_STACK.md`](NIGHTRAVEN_UNIFIED_STACK.md) §8 · [`NIGHTRAVEN_SESSION_SPEC_TREES.md`](NIGHTRAVEN_SESSION_SPEC_TREES.md) §3
+## 2026-08-14 — Compass active-claim-only catalog evidence
+
+- Added safe, contained discovery for active claims whose targets are clean in Git or absent from the fixed monitor catalog.
+- Made canonical claim JSON authoritative and fail-closed for blank, malformed, or unsupported structures; retained owner-aware legacy fallback only when the canonical file is absent.
+- Added canonical monitor regressions for claim-only rows, source precedence, supported JSON shapes, containment, duplicate suppression, missing targets, and release ownership.
+- Verified 14 monitor tests, 4 SSR-rendered monitor tests, production build, lint, and a 97/100 scoped re-audit with no Critical/High/Medium findings.
+
+**Cross-links:** [`apps/compass/docs/ARCHITECTURE.md`](../apps/compass/docs/ARCHITECTURE.md) · [`14_SESSION_HANDOFF.md`](14_SESSION_HANDOFF.md) · [`ledgers/BUILD_LEDGER.md`](ledgers/BUILD_LEDGER.md)
+
+## 2026-08-19 — Compass strict canonical claim-array evidence
+
+- Made authoritative claim arrays fail closed when any member is numeric, boolean, null, blank, or whitespace-only instead of silently collecting an incomplete empty/current set.
+- Preserved valid path strings, claim objects, nested arrays, and keyed maps; added regressions for invalid primitive-only, mixed, blank, top-level, and valid nested shapes.
+- Verified 17 monitor tests, the complete 29-test parser/SSR/browser gate, production build, lint, cleanup state, and a 99/100 scoped fix-back audit with no remaining findings.
+
+**Cross-links:** [`apps/compass/docs/ARCHITECTURE.md`](../apps/compass/docs/ARCHITECTURE.md) · [`14_SESSION_HANDOFF.md`](14_SESSION_HANDOFF.md) · [`ledgers/BUILD_LEDGER.md`](ledgers/BUILD_LEDGER.md) · [`ledgers/AUDIT_LEDGER.md`](ledgers/AUDIT_LEDGER.md)
+
+## 2026-08-26 — Compass real stalled CDP handshake evidence
+
+- Added a real local TCP fixture that accepts the production CDP WebSocket connection but never completes the upgrade.
+- Proved the connection deadline rejects promptly and closes the actual half-open peer transport, while fixture teardown force-closes residual sockets before server shutdown.
+- Verified the exact retained code with 31 parser/API tests, 7 SSR tests, 6 browser/CDP tests, production build, lint, diff integrity, and clean browser/profile teardown.
+
+**Cross-links:** [`apps/compass/docs/ARCHITECTURE.md`](../apps/compass/docs/ARCHITECTURE.md) · [`14_SESSION_HANDOFF.md`](14_SESSION_HANDOFF.md) · [`ledgers/BUILD_LEDGER.md`](ledgers/BUILD_LEDGER.md)
+
+## 2026-08-20 — Compass pathless canonical claim-object validation
+
+- Required objects inside canonical claim arrays and nested current-set arrays to carry a nonblank recognized path field before any claim is collected.
+- Made direct named-collection record metadata without a path invalidate the authoritative source while preserving path-bearing records and keyed claim maps.
+- Stopped unsafe path-bearing records as complete ignored records so traversal, foreign absolute/Windows, and symlink-escape targets cannot recurse into fabricated metadata-key claims.
+- Added fail-closed and compatibility regressions; verified 26 parser/API tests, 7 SSR tests, 5 browser/CDP tests, production build, lint, cleanup, diff integrity, and a 99/100 final fix-back review.
+
+**Cross-links:** [`apps/compass/docs/ARCHITECTURE.md`](../apps/compass/docs/ARCHITECTURE.md) · [`14_SESSION_HANDOFF.md`](14_SESSION_HANDOFF.md) · [`ledgers/BUILD_LEDGER.md`](ledgers/BUILD_LEDGER.md)
+
+## 2026-08-20 — Compass malformed run-status evidence gate
+
+- Required one of two explicit five-column run-status schemas, its separator, and the exact `pending` / `running` / `passed` / `failed` vocabulary while retaining compact Markdown compatibility.
+- Added a distinct invalid run state that fails closed for blank, malformed, header-only, unknown-schema, unsupported-state, duplicate-empty, and mixed empty/current evidence; validated the complete canonical empty sentinel.
+- Separated parsed run result from audit-ledger outcome and gave invalid evidence diagnostics distinct from genuine failed-stream diagnostics.
+- Verified 25 parser/API tests, 7 SSR tests, 5 browser/CDP tests, production build, lint, cleanup, diff integrity, and a 100/100 final scoped audit.
+
+**Cross-links:** [`apps/compass/docs/ARCHITECTURE.md`](../apps/compass/docs/ARCHITECTURE.md) · [`14_SESSION_HANDOFF.md`](14_SESSION_HANDOFF.md) · [`ledgers/BUILD_LEDGER.md`](ledgers/BUILD_LEDGER.md) · [`ledgers/AUDIT_LEDGER.md`](ledgers/AUDIT_LEDGER.md)
+
+## 2026-08-18 — Compass bounded browser setup failures
+
+- Added hard deadlines for Chrome process spawn and CDP WebSocket establishment, including pre-open close/error and late-open handling.
+- Put the full Chrome launch/setup path under one cleanup owner, including isolated profile deletion after spawn failure and explicit release of partial CDP page sessions.
+- Added focused stalled-connection, non-executable-spawn/profile, and page-session setup regressions; verified the 28-test canonical monitor gate, production build, lint, cleanup state, and a 98/100 scoped re-audit.
+
+**Cross-links:** [`apps/compass/docs/ARCHITECTURE.md`](../apps/compass/docs/ARCHITECTURE.md) · [`14_SESSION_HANDOFF.md`](14_SESSION_HANDOFF.md) · [`ledgers/BUILD_LEDGER.md`](ledgers/BUILD_LEDGER.md)
+
+## 2026-08-19 — Compass monitor batch clean extraction
+
+- Extracted the cumulative Compass monitor implementation into a dedicated branch/worktree based on `8328fa6`, excluding Planner, README, roadmap, lockfile, and dependency changes.
+- Split five shared evidence documents by complete Compass record instead of copying their mixed whole-file diffs; removed one misattributed Planner verification line and kept the ledger template ahead of every extracted record.
+- Made pending/running streams block detach and keep lifecycle `in_build`; bounded Vite listen, warmup, close, and the complete browser scenario.
+- Verified the 36-test canonical monitor gate, exact-final browser harness, production build, lint, diff integrity, cleanup, and three fix-back audits with no remaining Critical/High findings.
+
+**Cross-links:** [`apps/compass/docs/ARCHITECTURE.md`](../apps/compass/docs/ARCHITECTURE.md) · [`14_SESSION_HANDOFF.md`](14_SESSION_HANDOFF.md) · [`ledgers/BUILD_LEDGER.md`](ledgers/BUILD_LEDGER.md) · [`ledgers/AUDIT_LEDGER.md`](ledgers/AUDIT_LEDGER.md)

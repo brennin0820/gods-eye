@@ -19,6 +19,11 @@ import {
   buildNextMove,
   buildProjectFileCatalog,
   buildProjectMonitorSnapshot,
+  inspectResolvedProjectFile,
+  parseRunStatusEvidence,
+  readResolvedProjectFile,
+  resolveFirstProjectSource,
+  resolveProjectSource,
 } from './projectMonitor'
 import type { RegistryEntry } from './types'
 
@@ -52,14 +57,27 @@ export const MONITORED_ARTIFACTS = [
 
 const ARTIFACTS = MONITORED_ARTIFACTS
 
+function readFirstFileSafe(base: string, candidates: string[]) {
+  const source = resolveFirstProjectSource(base, candidates)
+  if (!source.entryExists || !source.contained || !source.realPath || !source.stat?.isFile()) return null
+  const file = readResolvedProjectFile(source)
+  if (!file) return null
+  return {
+    content: file.content,
+    sourcePath: source.sourcePath,
+    modifiedAt: file.stat.mtime.toISOString(),
+  }
+}
+
 function readFileSafe(base: string, rel: string): string | null {
-  const full = path.join(base, rel)
-  if (!fs.existsSync(full)) return null
-  return fs.readFileSync(full, 'utf8')
+  return readFirstFileSafe(base, [rel])?.content ?? null
 }
 
 function countArtifacts(base: string): number {
-  return ARTIFACTS.filter((rel) => fs.existsSync(path.join(base, rel))).length
+  return ARTIFACTS.filter((rel) => {
+    const source = resolveProjectSource(base, rel)
+    return Boolean(inspectResolvedProjectFile(source))
+  }).length
 }
 
 function parseGeneratedAt(value: string): string | undefined {
@@ -84,30 +102,25 @@ function latestSection(content: string): { heading: string; body: string[] } | n
 function buildArtifactReports(projectPath: string): CompassReport[] {
   const reports: CompassReport[] = []
 
-  const statusRel = 'docs/PARALLEL_RUN_STATUS.md'
-  const statusContent = readFileSafe(projectPath, statusRel)
-  if (statusContent) {
-    const generatedMatch = statusContent.match(/^_Generated (.+?) by NightRaven Orchestrator\./m)
-    const streamRows = [...statusContent.matchAll(/^\| ([^|]+) \| ([^|]+) \| ([^|]+) \| ([^|]+) \| ([^|]*) \|$/gm)]
-      .filter((row) => row[1] !== 'Stream' && row[1] !== '--------')
-    const active = streamRows.filter((row) => row[4].trim() === 'running').length
-    const failed = streamRows.filter((row) => row[4].trim() === 'failed').length
+  const statusSource = readFirstFileSafe(projectPath, ['docs/PARALLEL_RUN_STATUS.md', 'PARALLEL_RUN_STATUS.md'])
+  if (statusSource) {
+    const generatedMatch = statusSource.content.match(/^_Generated (.+?) by NightRaven Orchestrator\./m)
+    const runStatus = parseRunStatusEvidence(projectPath)
     reports.push({
       id: 'report-parallel-run-status',
       title: 'Parallel run status',
       kind: 'build',
       generatedAt:
         parseGeneratedAt(generatedMatch?.[1] ?? '') ??
-        fs.statSync(path.join(projectPath, statusRel)).mtime.toISOString(),
-      excerpt: `${streamRows.length} stream row(s); ${active} running; ${failed} failed.`,
-      artifactPath: statusRel,
+        statusSource.modifiedAt,
+      excerpt: `${runStatus.total} stream row(s); ${runStatus.running} running; ${runStatus.failed} failed.${runStatus.invalid ? ' Evidence is invalid.' : ''}`,
+      artifactPath: statusSource.sourcePath,
     })
   }
 
-  const buildLedgerRel = 'docs/ledgers/BUILD_LEDGER.md'
-  const buildLedgerContent = readFileSafe(projectPath, buildLedgerRel)
-  if (buildLedgerContent) {
-    const latest = latestSection(buildLedgerContent)
+  const buildLedgerSource = readFirstFileSafe(projectPath, ['docs/ledgers/BUILD_LEDGER.md'])
+  if (buildLedgerSource) {
+    const latest = latestSection(buildLedgerSource.content)
     if (latest) {
       const event = latest.body.find((line) => line.startsWith('- Event:'))?.replace('- Event: ', '')
       const actions = latest.body
@@ -117,17 +130,16 @@ function buildArtifactReports(projectPath: string): CompassReport[] {
         id: 'report-build-ledger-latest',
         title: `Latest build ledger — ${latest.heading}`,
         kind: 'build',
-        generatedAt: fs.statSync(path.join(projectPath, buildLedgerRel)).mtime.toISOString(),
+        generatedAt: buildLedgerSource.modifiedAt,
         excerpt: [event, actions].filter(Boolean).join(' · ') || 'Latest build ledger entry available.',
-        artifactPath: buildLedgerRel,
+        artifactPath: buildLedgerSource.sourcePath,
       })
     }
   }
 
-  const auditLedgerRel = 'docs/ledgers/AUDIT_LEDGER.md'
-  const auditLedgerContent = readFileSafe(projectPath, auditLedgerRel)
-  if (auditLedgerContent) {
-    const latest = latestSection(auditLedgerContent)
+  const auditLedgerSource = readFirstFileSafe(projectPath, ['docs/ledgers/AUDIT_LEDGER.md'])
+  if (auditLedgerSource) {
+    const latest = latestSection(auditLedgerSource.content)
     if (latest) {
       const event = latest.body.find((line) => line.startsWith('- Event:'))?.replace('- Event: ', '')
       const findings = latest.body.find((line) => line.startsWith('- Findings:'))?.replace('- Findings: ', '')
@@ -135,9 +147,9 @@ function buildArtifactReports(projectPath: string): CompassReport[] {
         id: 'report-audit-ledger-latest',
         title: `Latest audit ledger — ${latest.heading}`,
         kind: 'audit',
-        generatedAt: fs.statSync(path.join(projectPath, auditLedgerRel)).mtime.toISOString(),
+        generatedAt: auditLedgerSource.modifiedAt,
         excerpt: [event, findings].filter(Boolean).join(' · ') || 'Latest audit ledger entry available.',
-        artifactPath: auditLedgerRel,
+        artifactPath: auditLedgerSource.sourcePath,
       })
     }
   }
@@ -149,9 +161,9 @@ function buildArtifactReports(projectPath: string): CompassReport[] {
 export function computeSnapshotVersion(projectPath: string): string {
   const parts: string[] = []
   for (const rel of MONITORED_ARTIFACTS) {
-    const full = path.join(projectPath, rel)
-    if (fs.existsSync(full)) {
-      const stat = fs.statSync(full)
+    const source = resolveProjectSource(projectPath, rel)
+    const stat = inspectResolvedProjectFile(source)
+    if (stat) {
       parts.push(`${rel}:${stat.mtimeMs}`)
     }
   }
@@ -375,7 +387,8 @@ export function buildProjectSnapshot(
   registry: RegistryEntry[],
 ): ProjectSnapshot {
   const projectId = slugify(label) || slugify(path.basename(projectPath))
-  const handoffContent = readFileSafe(projectPath, 'docs/14_SESSION_HANDOFF.md')
+  const handoffSource = readFirstFileSafe(projectPath, ['docs/PROJECT_HANDOFF.md', 'docs/14_SESSION_HANDOFF.md'])
+  const handoffContent = handoffSource?.content ?? null
   const overlayContent = readFileSafe(projectPath, 'docs/NIGHTRAVEN_REPO_OVERLAY.md')
   const handoff = parseHandoff(handoffContent ?? '')
   const overlayNotNow = overlayContent ? parseOverlayNotNow(overlayContent) : []
@@ -416,7 +429,7 @@ export function buildProjectSnapshot(
       id: 'blocker-no-handoff',
       projectId,
       title: 'No handoff file',
-      reason: 'docs/14_SESSION_HANDOFF.md missing — Compass cannot read project state.',
+      reason: 'Project handoff missing or unsafe — Compass cannot read project state.',
       severity: 'high',
       blockedTaskIds: tasks.map((task) => task.id),
       owner: 'nightraven',
@@ -488,7 +501,7 @@ export function buildProjectSnapshot(
       ...item,
       kind: 'session' as const,
       title: item.text.slice(0, 72),
-      source: 'docs/14_SESSION_HANDOFF.md',
+      source: handoffSource?.sourcePath ?? 'docs/PROJECT_HANDOFF.md',
       id: item.id || `session-${index}`,
     })),
     loopSignals: [],

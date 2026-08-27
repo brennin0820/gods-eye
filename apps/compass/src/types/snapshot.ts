@@ -83,6 +83,7 @@ export type FilePrecisionState = {
   claim: 'unclaimed' | 'claimed' | 'conflict' | 'unknown'
   build: 'not_required' | 'not_started' | 'planned' | 'changed' | 'built'
   audit: 'not_required' | 'required' | 'pending' | 'pass' | 'fail'
+  runStatus?: 'empty' | 'active' | 'passed' | 'failed' | 'invalid'
   blocking: boolean
   nextAction: string
   evidence: string[]

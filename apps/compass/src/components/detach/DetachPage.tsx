@@ -10,6 +10,8 @@ type DetachCheck = {
 export function DetachPage() {
   const { snapshot } = useCompassData()
   if (!snapshot) return null
+  const memoryDimension = snapshot.monitor.dimensions.find((dimension) => dimension.id === 'memory')
+  const handoffFresh = snapshot.meta.handoffFound && memoryDimension?.status === 'clear'
 
   const checks: DetachCheck[] = [
     {
@@ -31,9 +33,27 @@ export function DetachPage() {
       detail: 'Failed audit evidence blocks detach.',
     },
     {
+      label: 'No open high/critical blockers',
+      passed: !snapshot.blockers.some(
+        (blocker) => blocker.status === 'open' && (blocker.severity === 'high' || blocker.severity === 'critical'),
+      ),
+      detail: 'Open high or critical blockers must be resolved before detach.',
+    },
+    {
       label: 'Project handoff present',
       passed: snapshot.meta.handoffFound,
       detail: 'Project Handoff must exist as final current-state memory.',
+    },
+    {
+      label: 'Project handoff fresh',
+      passed: handoffFresh,
+      detail: !snapshot.meta.handoffFound
+        ? 'Project Handoff must exist before freshness can be verified.'
+        : memoryDimension?.detail.includes('invalid')
+          ? 'Project handoff freshness evidence is invalid and must be repaired before detach.'
+          : handoffFresh
+            ? 'Project Handoff freshness evidence is valid for detach.'
+            : 'A stale Project Handoff must be refreshed before detach.',
     },
     {
       label: 'Memory artifacts present',

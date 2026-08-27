@@ -1212,3 +1212,58 @@ Durable patterns discovered in this repo. Append-only (`+#`).
 3. **Project root in hooks:** prefer `CURSOR_PROJECT_DIR`, then `workspace_roots[0]` from stdin JSON, then `git rev-parse --show-toplevel`.
 
 **Applies to:** `install.sh`, `.cursor/hooks/lib.sh`, [`CURSOR_INSTALL.md`](../CURSOR_INSTALL.md).
+## 2026-08-14 — Active ownership evidence must not depend on Git dirtiness
+
+**Context:** A clean or not-yet-created file can still have an outstanding writer claim, so a catalog built only from fixed artifacts and `git status` can falsely report detach readiness.
+
+**Pattern:** Treat the canonical current-claim set as authoritative by file existence, fail closed when it is unreadable, normalize every claim to one project-contained identity before filesystem access, and add deduplicated claim-only rows after fixed and Git rows. Legacy append logs require owner-aware release replay.
+
+**Applies to:** Compass-style monitors, detach gates, file explorers, and any status surface that derives completion from claim evidence.
+
+## 2026-08-18 — Browser setup must enter cleanup ownership before readiness work
+
+**Context:** Bounding browser commands and teardown is insufficient when process spawn, WebSocket establishment, or page-session initialization can fail before the normal browser handle exists. A temporary profile or connecting socket can outlive the failed proof path.
+
+**Pattern:** Allocate fallible prerequisites before creating disposable resources where possible, then put process creation, spawn confirmation, connection establishment, and session setup inside one cleanup boundary. Give each asynchronous readiness stage its own deadline, handle pre-ready error and close events, dispose late success after timeout, and explicitly close partially initialized clients before rethrowing.
+
+**Applies to:** Chrome/CDP smoke tests, WebSocket clients, browser automation harnesses, local worker launchers, and unattended integration gates.
+
+## 2026-08-19 — Authoritative current-set evidence must validate before partial collection
+
+**Context:** A canonical current-set file can suppress legacy evidence by existence. If a flexible parser silently ignores unsupported array members, damaged evidence such as a number, boolean, null, or blank path can become an apparently valid empty set and erase real blockers from a completion gate.
+
+**Pattern:** Validate the entire recognized current-set container before collecting any paths. Reject unsupported or empty primitive members as one invalid source, discard partial valid members from that source, and keep legacy fallback suppressed so corruption is visible rather than guessed around. Pair fail-closed mixed-input tests with positive compatibility tests for every documented flexible shape.
+
+**Applies to:** Claim files, lock/ownership snapshots, run-status tables, manifests, and any authoritative evidence source that replaces append-only history.
+
+## 2026-08-19 — Clean integration requires record ownership, not only path ownership
+
+**Context:** A dirty monorepo can contain separable app files while append-only handoff and ledger documents interleave several products. Selecting whole shared files—or filtering added lines without preserving record boundaries—can attach another product's proof to the wrong build.
+
+**Pattern:** Extract coupled product files together, split shared memory at complete record/section boundaries, validate both changed paths and record titles, then re-audit provenance before landing. Keep active runtime evidence in the same truth gate: a pending/running stream must block detach even when every static file and audit row is otherwise clear.
+
+**Applies to:** NightRaven worktree extraction, append-only ledgers, handoff consolidation, Compass monitor integration, and any monorepo batch separated before commit.
+
+## 2026-08-20 — Current-state evidence needs structural validity, not just recognizable values
+
+**Context:** A status parser can appear fail-closed for unknown values while still accepting headerless rows, success aliases, partial empty sentinels, or contradictory empty/current rows. Any of those can turn damaged authoritative evidence into terminal success.
+
+**Pattern:** Recognize the whole schema before reading state: exact supported headers, separator, strict state vocabulary, and a complete unique empty sentinel. Reject partial, duplicate, mixed, or unsupported structures as one invalid source. Preserve invalid, failed, active, passed, empty, and unrelated audit outcomes as distinct signals so lifecycle gates and repair guidance remain truthful. Tests must prove both parsing success and fail-closed diagnosis rather than asserting only a shared downstream failure state.
+
+**Applies to:** Run-status tables, current orchestration snapshots, detach/shipping gates, status dashboards, and any authoritative current-state file that supersedes append-only history.
+
+## 2026-08-20 — Structured evidence records need identity before metadata traversal
+
+**Context:** A flexible claim walker can receive an object whose ownership metadata looks valid but whose file path is absent or unsafe. Recursing through that object can reinterpret keys such as `status`, `owner`, or `stream` as file identities and produce confident but fictional blocker rows.
+
+**Pattern:** Validate record identity before collecting any metadata. A pathless record invalidates the authoritative source; a record with a recognized but unsafe path terminates as one ignored unsafe record and must never recurse into its fields. Keep keyed-map compatibility explicit, provide an unambiguous path-bearing form for reserved extensionless filenames, and test both malformed records and unsafe-path metadata together.
+
+**Applies to:** Claim snapshots, lock ownership files, manifest targets, status dashboards, detach gates, and any flexible structured-evidence parser that separates record identity from record metadata.
+
+## 2026-08-26 — Timeout tests should include the real stalled transport
+
+**Context:** An injected WebSocket that never opens proves timer control flow, but it does not prove the runtime networking stack releases a TCP peer that accepts a connection and then stalls during protocol upgrade.
+
+**Pattern:** Pair the deterministic fake with a bounded local transport fixture that reaches the real handshake path, intentionally withholds completion, observes the production timeout, and force-closes residual peer sockets during fixture teardown. Keep this transport-level test focused; run the full browser scenario separately in the canonical gate.
+
+**Applies to:** CDP/WebSocket clients, local browser harnesses, agent transports, and unattended integration tests that claim connection deadlines and cleanup guarantees.

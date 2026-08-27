@@ -899,6 +899,8 @@ test('compact run-status rows remain authoritative while malformed evidence fail
       '| Stream | Agent | Scope | Status | Notes |\n| --- | --- | --- | --- | --- |\n',
       '| Stream | Agent | Scope | Status | Notes |\n| --- | --- | --- | --- | --- |\n| build-ui | Codex | src/app.ts | unknown | damaged state |\n',
       '| Stream | Agent | Scope | Status | Notes |\n| --- | --- | --- | --- | --- |\n| build-ui | Codex | src/app.ts | done | noncanonical success |\n',
+      '| Stream | Agent | Scope | Status | Notes |\n| --- | --- | --- | --- | --- |\n| build-ui | Codex | src/app.ts | RUNNING | uppercase state |\n',
+      '| Stream | Division | Phase | State | Detail |\n| --- | --- | --- | --- | --- |\n| build-ui | builder | Phase 4 | Passed | mixed-case state |\n',
       '| build-ui | Codex | src/app.ts | passed | missing schema |\n',
       '| Stream | Agent | Scope | Status | Notes |\n| --- | --- | --- | --- | --- |\n| build-ui | Codex | src/app.ts | running | missing terminator\n',
       '| Stream | Division | Phase | State | Detail |\n| --- | --- | --- | --- | --- |\n| — | garbage | garbage | — | garbage |\n',

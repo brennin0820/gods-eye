@@ -716,7 +716,7 @@ function buildClaimEvidence(projectPath: string): ClaimEvidence {
 }
 
 function normalizeRunState(value: string): keyof Pick<RunStatusEvidence, 'pending' | 'running' | 'passed' | 'failed'> | undefined {
-  const normalized = value.trim().toLowerCase()
+  const normalized = value.trim()
   if (normalized === 'pending' || normalized === 'running' || normalized === 'passed' || normalized === 'failed') return normalized
   return undefined
 }

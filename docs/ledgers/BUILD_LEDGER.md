@@ -737,3 +737,14 @@ Entry format:
 - Confidence: 99/100
 - Verification: Before the fix, the two new SSR cases failed because pending audit and active run/build evidence rendered as passing or absent checklist gates. On the exact final code, `cd apps/compass && npm run test:monitor:all` passed sequentially (35 parser/API tests, 9 SSR tests, 6 browser/CDP tests); `npm run build` passed; `npm run lint` passed; `git diff --check` passed.
 - Verification update (Supersedes the exact-final full-gate claim above): after adding two assertion-only ready-row checks from scoped review, the exact parser/API and SSR stages passed again, but the unchanged browser scenario twice timed out during bounded Chrome CDP startup. The earlier exact production code passed the complete 50-test gate; final production build, lint, diff integrity, and cleanup checks remain passing.
+
+## [2026-08-27] Feature Builder — Compass exact lowercase run-status states
+- Event: FeatureBuilt
+- ApprovalGranted: "Standing ship signal for this task: implement the next concrete build slice (equivalent to \"code it\" / \"build\" / \"implement this plan\")."
+- Actions performed: Removed case-folding from authoritative run-state validation, added fail-closed uppercase and mixed-case fixtures across the Compass and Planner schemas, and documented the exact lowercase contract.
+- Files created: docs/board/T-004-enforce-run-status-state-casing.md
+- Files modified: apps/compass/server/projectMonitor.ts; apps/compass/server/projectMonitor.test.ts; apps/compass/docs/ARCHITECTURE.md; docs/board/BOARD.md; docs/ledgers/BUILD_LEDGER.md; docs/14_SESSION_HANDOFF.md; docs/02_ENGINEERING_CHANGELOG.md; docs/04_LEARNING_LOG.md
+- Dependencies added: None
+- Reasoning: Authoritative current-run evidence must use the canonical closed vocabulary; normalizing damaged state casing before validation can turn malformed evidence into trusted active or terminal state and permit optimistic detach guidance.
+- Confidence: 99/100
+- Verification: The focused regression failed before the fix and passed after it. `npm run test:monitor:all` passed 35 parser/API and 9 SSR tests before the unchanged fixture-backed browser scenario hit its documented bounded CDP startup timeout; a standalone browser retry reproduced that baseline after all five focused harness tests passed. `npm run build`, `npm run lint`, `git diff --check`, and cleanup checks passed. Scoped fix-back review found no Critical, High, or Medium findings.

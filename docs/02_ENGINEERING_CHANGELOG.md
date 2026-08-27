@@ -1008,6 +1008,15 @@ Append-only (`+#`). Corrections use **Supersedes** lines — never delete histor
 
 **Cross-links:** [`apps/compass/docs/ARCHITECTURE.md`](../apps/compass/docs/ARCHITECTURE.md) · [`14_SESSION_HANDOFF.md`](14_SESSION_HANDOFF.md) · [`ledgers/BUILD_LEDGER.md`](ledgers/BUILD_LEDGER.md) · [`ledgers/AUDIT_LEDGER.md`](ledgers/AUDIT_LEDGER.md)
 
+## 2026-08-27 — Compass exact lowercase run-status states
+
+- Stopped case-folding stream states before authoritative run-status validation.
+- Added fail-closed regressions for uppercase Compass-schema and mixed-case Planner-schema states while retaining valid compact and padded lowercase tables.
+- Verified 35 parser/API tests, 9 SSR tests, production build, lint, diff integrity, and a scoped review with no Critical/High/Medium findings.
+- The unchanged browser scenario retained T-003's documented bounded CDP startup timeout; all five focused browser-harness tests passed before the fixture-backed Chrome launch timed out.
+
+**Cross-links:** [`apps/compass/docs/ARCHITECTURE.md`](../apps/compass/docs/ARCHITECTURE.md) · [`14_SESSION_HANDOFF.md`](14_SESSION_HANDOFF.md) · [`ledgers/BUILD_LEDGER.md`](ledgers/BUILD_LEDGER.md)
+
 ## 2026-08-27 — Compass Detach checklist truth
 
 - Made pending audit evidence block the rendered audit checklist row instead of showing Pass while lifecycle remained `in_audit`.

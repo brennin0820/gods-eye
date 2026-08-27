@@ -1283,3 +1283,11 @@ Durable patterns discovered in this repo. Append-only (`+#`).
 **Pattern:** Derive each checklist row from the same deterministic evidence and status vocabulary as the lifecycle gate. Cover every nonterminal state with rendered tests, and keep a terminal success fixture to prove the stricter explanation does not over-block.
 
 **Applies to:** Detach and release checklists, approval gates, deployment readiness, audit queues, and any UI that explains a composite state machine.
+
+## 2026-08-27 — Canonical state tokens should not be case-folded before validation
+
+**Context:** A parser can advertise a strict four-state contract while silently accepting uppercase or mixed-case variants because it normalizes the token before checking membership. Damaged authoritative evidence then looks valid instead of requiring repair.
+
+**Pattern:** Normalize Markdown framing such as surrounding cell whitespace, but compare authoritative enum tokens in their canonical form. Put noncanonical casing through the same fail-closed path as unknown states, and retain positive fixtures for every supported table shape.
+
+**Applies to:** Run-status tables, coordination ledgers, detach gates, deployment state files, and any human-editable authoritative evidence with a closed state vocabulary.

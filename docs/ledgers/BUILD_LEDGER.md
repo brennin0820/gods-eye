@@ -715,3 +715,13 @@ Entry format:
 - Reasoning: Evolution state and refresh evidence now share the same attached-project boundary, preventing foreign or ambient working-directory files from contradicting Compass monitor truth.
 - Confidence: 100/100
 - Verification: On the exact final code, `cd apps/compass && npm run test:monitor:all` passed (35 parser/API tests, 7 SSR tests, 6 browser/CDP tests); `npm run build` passed; `npm run lint` passed; `git diff --check` passed. Final scoped Architecture/General audit passed at 100/100 with no Critical, High, Medium, or Low findings.
+
+## [2026-08-27] Integration Builder — Compass T-001 verification and branch publication
+- Event: VerificationCompleted
+- Actions performed: Reverified the exact committed `codex/T-001` Compass evolution-evidence containment slice, confirmed branch diff integrity, and published implementation commit `3c50fc6` to `origin/codex/T-001` for the constitution-required Claude integration review.
+- Files created: None
+- Files modified: docs/14_SESSION_HANDOFF.md; docs/board/T-001-contain-compass-evolution-evidence.md; docs/ledgers/BUILD_LEDGER.md
+- Dependencies added: None
+- Reasoning: The implementation was complete but existed only on a local review branch; publishing the freshly verified task branch advances the in-progress Command Center accuracy item without bypassing Claude's ownership of merges to `main` or disturbing unrelated worktrees.
+- Confidence: 100/100
+- Verification: `cd apps/compass && npm run test:monitor:all` passed (35 parser/API tests, 7 SSR tests, 6 browser/CDP tests); `npm run build` passed; `npm run lint` passed; `git diff --check origin/main...HEAD` passed before the records-only closeout; `git push -u origin codex/T-001` published implementation commit `3c50fc6` successfully.

@@ -20,3 +20,4 @@ Ensure Compass evolution tracking derives project state only from evidence conta
 
 - 2026-08-26, Codex: Claimed from the committed Compass monitor baseline `752c567`; implementation and verification pending.
 - 2026-08-26, Codex: Implemented canonical-first contained evolution evidence with no cwd fallback; added API/direct matrix regressions; 35 parser/API, 7 SSR, and 6 browser tests plus build/lint passed; final scoped audit PASS 100/100. Ready for Claude review; branch is not merged or pushed.
+- 2026-08-27, Codex: Reverified the exact committed branch with all 48 monitor tests, production build, lint, and diff integrity passing; published implementation commit `3c50fc6` to `origin/codex/T-001`. Task remains in review for Claude-owned merge; `main` was not touched.

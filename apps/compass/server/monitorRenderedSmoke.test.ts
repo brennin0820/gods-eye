@@ -13,7 +13,15 @@ import type { ProjectContextValue } from '../src/context/compassContext'
 import type { Project } from '../src/types/project'
 import type { ProjectSnapshot, RegistryEntry } from '../src/types/snapshot'
 
-type FixtureMode = 'ready' | 'blocked' | 'missingMemory' | 'missingHandoff' | 'staleMemory' | 'invalidMemory'
+type FixtureMode =
+  | 'ready'
+  | 'blocked'
+  | 'activeRun'
+  | 'pendingAudit'
+  | 'missingMemory'
+  | 'missingHandoff'
+  | 'staleMemory'
+  | 'invalidMemory'
 
 type CompassContextModule = {
   CompassContext: React.Context<ProjectContextValue | null>
@@ -44,6 +52,7 @@ function commitProject(projectPath: string, message: string): void {
 
 function createFixtureProject(mode: FixtureMode): string {
   const blocked = mode === 'blocked'
+  const activeRun = mode === 'activeRun'
   const missingMemory = mode === 'missingMemory'
   const missingHandoff = mode === 'missingHandoff'
   const staleMemory = mode === 'staleMemory'
@@ -71,6 +80,8 @@ function createFixtureProject(mode: FixtureMode): string {
               ? 'Rendered monitor fixture. **Next:** repair invalid handoff freshness evidence.'
           : blocked
             ? 'Rendered monitor fixture. **Next:** fix failed run.'
+            : activeRun
+              ? 'Rendered monitor fixture. **Next:** finish active run.'
             : 'Rendered monitor fixture. **Next:** prepare detach package.',
         '',
         '## Recent sessions',
@@ -104,7 +115,9 @@ function createFixtureProject(mode: FixtureMode): string {
       '| --- | --- | --- | --- | --- |',
       blocked
         ? '| rendered-monitor | Codex | apps/compass/server/monitorRenderedSmoke.test.ts | failed | render smoke failed |'
-        : '| rendered-monitor | Codex | apps/compass/server/monitorRenderedSmoke.test.ts | passed | render smoke passed |',
+        : activeRun
+          ? '| rendered-monitor | Codex | apps/compass/server/monitorRenderedSmoke.test.ts | running | render smoke active |'
+          : '| rendered-monitor | Codex | apps/compass/server/monitorRenderedSmoke.test.ts | passed | render smoke passed |',
       '',
     ].join('\n'),
   )
@@ -142,6 +155,7 @@ function createSnapshot(
   includeCriticalBlocker = mode === 'blocked',
 ): ProjectSnapshot {
   const missingHandoff = mode === 'missingHandoff'
+  const pendingAudit = mode === 'pendingAudit'
   const loadedAt = new Date().toISOString()
   const registry: RegistryEntry[] = [
     {
@@ -156,7 +170,7 @@ function createSnapshot(
     name: 'Rendered Monitor Fixture',
     concept: 'Fixture-backed monitor rendered smoke.',
     status:
-      mode === 'blocked' || mode === 'missingHandoff' || mode === 'staleMemory' || mode === 'invalidMemory' || includeCriticalBlocker
+      mode === 'blocked' || mode === 'activeRun' || pendingAudit || mode === 'missingHandoff' || mode === 'staleMemory' || mode === 'invalidMemory' || includeCriticalBlocker
         ? 'blocked'
         : 'ready',
     currentPhaseId: 'phase-monitor',
@@ -185,13 +199,26 @@ function createSnapshot(
         },
       ]
     : []
+  const auditItems: ProjectSnapshot['auditItems'] = pendingAudit
+    ? [
+        {
+          id: 'pending-audit',
+          projectId: project.id,
+          taskId: 'monitor-smoke',
+          status: 'pending',
+          findings: [],
+          requiredFixes: [],
+          canMoveForward: false,
+        },
+      ]
+    : []
   const monitor = buildProjectMonitorSnapshot(fileCatalog, {
     handoffFound: !missingHandoff,
     overlayFound,
     tasks: [],
     blockers,
     decisions: [],
-    auditItems: [],
+    auditItems,
   })
 
   return {
@@ -213,7 +240,7 @@ function createSnapshot(
     decisions: [],
     blockers,
     notNowItems: [],
-    auditItems: [],
+    auditItems,
     promptCards: [],
     progress: {
       projectId: project.id,
@@ -361,6 +388,8 @@ test('SSR-rendered monitor pages show ready-to-detach evidence', async () => {
     /Build, audit, and run evidence/,
     /Ready To Detach/,
     /Project can prepare to detach/,
+    /data-passed="true"><strong>Pass<\/strong><span>Audit gate clear<\/span>/,
+    /data-passed="true"><strong>Pass<\/strong><span>No active run or build<\/span>/,
     /Pass.*Project handoff fresh/,
     /Project Handoff freshness evidence is valid for detach/,
     /Prepare detach package/,
@@ -379,6 +408,22 @@ test('SSR-rendered monitor pages show failed run and claim blockers', async () =
     /data-passed="false"><strong>Blocked<\/strong><span>No open high\/critical blockers<\/span>/,
     /Open high or critical blockers must be resolved before detach/,
     /Current run status has failed stream evidence/,
+  ])
+})
+
+test('SSR-rendered Detach checklist blocks while an audit is pending', async () => {
+  await assertRenderedMode('pendingAudit', [
+    /Project is not ready to detach/,
+    /data-passed="false"><strong>Blocked<\/strong><span>Audit gate clear<\/span>/,
+    /Pending audit evidence must finish before detach/,
+  ])
+})
+
+test('SSR-rendered Detach checklist blocks while a run is active', async () => {
+  await assertRenderedMode('activeRun', [
+    /Project is not ready to detach/,
+    /data-passed="false"><strong>Blocked<\/strong><span>No active run or build<\/span>/,
+    /Active run or build evidence must reach a terminal state before detach/,
   ])
 })
 

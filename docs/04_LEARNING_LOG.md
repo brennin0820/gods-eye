@@ -1275,3 +1275,11 @@ Durable patterns discovered in this repo. Append-only (`+#`).
 **Pattern:** Resolve base candidates through the same project-contained boundary used for reads. Treat an unsafe canonical entry as present-but-invalid so it suppresses lower-priority fallbacks, derive content and metadata from one validated descriptor, and never substitute ambient cwd state for missing selected-project evidence. Test the entire precedence matrix: absent root, valid root, valid nested, outside symlink, contained symlink, wrong type, and broken canonical entry.
 
 **Applies to:** Compass evolution tracking, project dashboards, registry-selected snapshots, auto-refresh inputs, and any local-first monitor with canonical and fallback evidence locations.
+
+## 2026-08-27 — Explanatory checklists must match the gate they explain
+
+**Context:** A page can truthfully report that a workflow is blocked while its checklist still marks a weaker condition as passing, such as treating a pending audit as "not failing" or omitting an active run entirely.
+
+**Pattern:** Derive each checklist row from the same deterministic evidence and status vocabulary as the lifecycle gate. Cover every nonterminal state with rendered tests, and keep a terminal success fixture to prove the stricter explanation does not over-block.
+
+**Applies to:** Detach and release checklists, approval gates, deployment readiness, audit queues, and any UI that explains a composite state machine.

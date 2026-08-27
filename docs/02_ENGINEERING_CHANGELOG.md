@@ -1008,6 +1008,16 @@ Append-only (`+#`). Corrections use **Supersedes** lines — never delete histor
 
 **Cross-links:** [`apps/compass/docs/ARCHITECTURE.md`](../apps/compass/docs/ARCHITECTURE.md) · [`14_SESSION_HANDOFF.md`](14_SESSION_HANDOFF.md) · [`ledgers/BUILD_LEDGER.md`](ledgers/BUILD_LEDGER.md) · [`ledgers/AUDIT_LEDGER.md`](ledgers/AUDIT_LEDGER.md)
 
+## 2026-08-27 — Compass Detach checklist truth
+
+- Made pending audit evidence block the rendered audit checklist row instead of showing Pass while lifecycle remained `in_audit`.
+- Added an explicit active run/build checklist row backed by file-level `build: planned` evidence.
+- Added SSR regressions for both contradictions while preserving the ready terminal fixture.
+- Verified 35 parser/API tests, 9 SSR tests, 6 browser/CDP tests, production build, lint, and diff integrity.
+- Supersedes the full-gate wording above: after the final assertion-only review fix, parser/API and SSR passed again; the unchanged Chrome scenario twice hit its bounded CDP startup timeout. Production build, lint, diff integrity, and cleanup remain passing, and an earlier exact-code canonical run passed all 50 tests.
+
+**Cross-links:** [`apps/compass/docs/ARCHITECTURE.md`](../apps/compass/docs/ARCHITECTURE.md) · [`14_SESSION_HANDOFF.md`](14_SESSION_HANDOFF.md) · [`ledgers/BUILD_LEDGER.md`](ledgers/BUILD_LEDGER.md)
+
 ## 2026-08-26 — Compass real stalled CDP handshake evidence
 
 - Added a real local TCP fixture that accepts the production CDP WebSocket connection but never completes the upgrade.

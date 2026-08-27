@@ -11,7 +11,10 @@ export function DetachPage() {
   const { snapshot } = useCompassData()
   if (!snapshot) return null
   const memoryDimension = snapshot.monitor.dimensions.find((dimension) => dimension.id === 'memory')
+  const auditDimension = snapshot.monitor.dimensions.find((dimension) => dimension.id === 'audit')
   const handoffFresh = snapshot.meta.handoffFound && memoryDimension?.status === 'clear'
+  const auditGateClear = auditDimension?.status !== 'blocked' && auditDimension?.status !== 'failed'
+  const activeRunOrBuild = snapshot.fileCatalog.some((entry) => entry.precision.build === 'planned')
 
   const checks: DetachCheck[] = [
     {
@@ -28,9 +31,20 @@ export function DetachPage() {
       detail: 'Active claims must be released or resolved before detach.',
     },
     {
-      label: 'Audit not failing',
-      passed: !snapshot.monitor.dimensions.some((dimension) => dimension.id === 'audit' && dimension.status === 'failed'),
-      detail: 'Failed audit evidence blocks detach.',
+      label: 'Audit gate clear',
+      passed: auditGateClear,
+      detail: auditGateClear
+        ? 'No pending or failed audit evidence blocks detach.'
+        : auditDimension?.status === 'blocked'
+          ? 'Pending audit evidence must finish before detach.'
+          : 'Failed audit evidence must be repaired before detach.',
+    },
+    {
+      label: 'No active run or build',
+      passed: !activeRunOrBuild,
+      detail: activeRunOrBuild
+        ? 'Active run or build evidence must reach a terminal state before detach.'
+        : 'No active run or build evidence blocks detach.',
     },
     {
       label: 'No open high/critical blockers',

@@ -6,6 +6,7 @@ Index of all tasks. Keep this table in sync with the task files.
 |---|---|---|---|---|
 | T-001 | Contain Compass evolution evidence | Compass monitor | codex | review |
 | T-003 | Align Compass Detach checklist truth | Compass monitor | codex | review |
+| T-004 | Enforce canonical run-status state casing | Compass monitor | codex | in-progress |
 
 Statuses: `todo` → `in-progress` → `review` → `done`, plus `blocked`.
 

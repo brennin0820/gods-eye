@@ -705,3 +705,13 @@ Entry format:
 - Dependencies added: None
 - Reasoning: Evolution state must not import foreign project data through outside-root symlinks or disagree with the monitor catalog's contained evidence truth.
 - Confidence: 96/100
+
+## [2026-08-26] Feature Builder — Compass evolution-evidence containment
+- Event: FeatureBuilt
+- Actions performed: Replaced unchecked evolution discovery, reads, and metadata lookups with canonical-first project-contained resolution and descriptor-bound reads; removed process-working-directory fallback; preserved contained symlinks and nested Compass fallback; added direct and API regressions for outside, contained, nested, valid-root, wrong-type, broken, and absent evidence.
+- Files created: docs/board/BOARD.md; docs/board/T-001-contain-compass-evolution-evidence.md
+- Files modified: apps/compass/server/evolutionTracker.ts; apps/compass/server/projectMonitor.test.ts; apps/compass/docs/ARCHITECTURE.md; docs/ledgers/BUILD_LEDGER.md; docs/ledgers/AUDIT_LEDGER.md; docs/14_SESSION_HANDOFF.md; docs/02_ENGINEERING_CHANGELOG.md; docs/04_LEARNING_LOG.md
+- Dependencies added: None
+- Reasoning: Evolution state and refresh evidence now share the same attached-project boundary, preventing foreign or ambient working-directory files from contradicting Compass monitor truth.
+- Confidence: 100/100
+- Verification: On the exact final code, `cd apps/compass && npm run test:monitor:all` passed (35 parser/API tests, 7 SSR tests, 6 browser/CDP tests); `npm run build` passed; `npm run lint` passed; `git diff --check` passed. Final scoped Architecture/General audit passed at 100/100 with no Critical, High, Medium, or Low findings.

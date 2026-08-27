@@ -143,6 +143,8 @@ Rendered monitor smoke has two levels. `npm run test:monitor:render` uses Vite S
 
 The Evolution page renders current version, stage, goal, final-form screens, Definition of Done, mockup/unfinished component rows, integrity findings, tracking file health, and the next-version delta gate. These files are evidence for Compass product evolution; they are not a license for autonomous agent execution.
 
+Evolution discovery is canonical-first: project-root tracking files take precedence over `apps/compass/` files. Content and metadata use the same descriptor-bound, project-contained resolver as monitor evidence. Unsafe, outside-root, broken, or wrong-type canonical entries fail closed without falling through to nested or process-working-directory state; contained in-project symlinks remain supported.
+
 ---
 
 ## IndexedDB overrides

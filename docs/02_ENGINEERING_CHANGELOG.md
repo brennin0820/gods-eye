@@ -1050,3 +1050,12 @@ Append-only (`+#`). Corrections use **Supersedes** lines — never delete histor
 - Verified the 36-test canonical monitor gate, exact-final browser harness, production build, lint, diff integrity, cleanup, and three fix-back audits with no remaining Critical/High findings.
 
 **Cross-links:** [`apps/compass/docs/ARCHITECTURE.md`](../apps/compass/docs/ARCHITECTURE.md) · [`14_SESSION_HANDOFF.md`](14_SESSION_HANDOFF.md) · [`ledgers/BUILD_LEDGER.md`](ledgers/BUILD_LEDGER.md) · [`ledgers/AUDIT_LEDGER.md`](ledgers/AUDIT_LEDGER.md)
+
+## 2026-08-26 — Compass evolution-evidence containment
+
+- Routed evolution tracking discovery, content, and metadata through the shared descriptor-bound project-containment resolver.
+- Removed process-working-directory fallback and made unsafe canonical root evidence suppress nested fallback while retaining valid contained symlinks and `apps/compass/` fallback.
+- Added direct and API regressions for the full root/nested/unsafe selection matrix.
+- Verified 35 parser/API tests, 7 SSR tests, 6 browser/CDP tests, production build, lint, diff integrity, and a 100/100 final scoped audit.
+
+**Cross-links:** [`apps/compass/docs/ARCHITECTURE.md`](../apps/compass/docs/ARCHITECTURE.md) · [`14_SESSION_HANDOFF.md`](14_SESSION_HANDOFF.md) · [`ledgers/BUILD_LEDGER.md`](ledgers/BUILD_LEDGER.md) · [`ledgers/AUDIT_LEDGER.md`](ledgers/AUDIT_LEDGER.md)

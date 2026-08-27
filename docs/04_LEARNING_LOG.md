@@ -1267,3 +1267,11 @@ Durable patterns discovered in this repo. Append-only (`+#`).
 **Pattern:** Pair the deterministic fake with a bounded local transport fixture that reaches the real handshake path, intentionally withholds completion, observes the production timeout, and force-closes residual peer sockets during fixture teardown. Keep this transport-level test focused; run the full browser scenario separately in the canonical gate.
 
 **Applies to:** CDP/WebSocket clients, local browser harnesses, agent transports, and unattended integration tests that claim connection deadlines and cleanup guarantees.
+
+## 2026-08-26 — Evidence-base selection is part of the containment boundary
+
+**Context:** A reader can use safe per-file operations and still leak foreign state if base discovery follows unchecked symlinks or falls back to the agent process working directory when the selected project has no evidence.
+
+**Pattern:** Resolve base candidates through the same project-contained boundary used for reads. Treat an unsafe canonical entry as present-but-invalid so it suppresses lower-priority fallbacks, derive content and metadata from one validated descriptor, and never substitute ambient cwd state for missing selected-project evidence. Test the entire precedence matrix: absent root, valid root, valid nested, outside symlink, contained symlink, wrong type, and broken canonical entry.
+
+**Applies to:** Compass evolution tracking, project dashboards, registry-selected snapshots, auto-refresh inputs, and any local-first monitor with canonical and fallback evidence locations.

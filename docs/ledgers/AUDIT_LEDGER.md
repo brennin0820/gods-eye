@@ -76,3 +76,10 @@ Entry format:
 - Scores: Commit-readiness correctness 99/100
 - Risks: The branch remains a local commit until a separate merge/push decision; file-level stream-scope attribution intentionally stays conservative and requires exact ledger evidence rather than guessing from heterogeneous Planner phase and Compass scope columns.
 - Recommendations: Keep and commit the isolated Compass batch. Merge/push it separately without absorbing the dirty primary checkout or the independent Planner batch.
+
+## [2026-08-26] Architecture/General Auditor — Compass evolution-evidence containment
+- Event: AuditCompleted
+- Findings: PASS after coverage fix-back. No Critical, High, Medium, or Low findings remain. Evolution discovery is canonical-first, unsafe canonical entries suppress fallback, content and metadata share descriptor-bound project containment, contained symlinks remain supported, cwd fallback is removed, and the complete root/nested/unsafe precedence matrix is directly tested.
+- Scores: Scoped correctness and architecture 100/100
+- Risks: No remaining scoped risk identified; integration and remote landing remain separate decisions.
+- Recommendations: Keep and commit this slice for Claude review on `codex/T-001`; do not merge or push from the Codex worktree.

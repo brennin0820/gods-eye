@@ -1,5 +1,4 @@
-import fs from 'node:fs'
-import path from 'node:path'
+import type { Stats } from 'node:fs'
 import type {
   AppEvolutionSnapshot,
   EvolutionIntegrityFinding,
@@ -7,6 +6,7 @@ import type {
   EvolutionTrackerItemType,
   EvolutionTrackingFile,
 } from '../src/types/snapshot'
+import { readResolvedProjectFile, resolveProjectSource } from './projectMonitor.ts'
 
 type TrackingFileDefinition = {
   name: string
@@ -47,50 +47,51 @@ const trackingFileDefinitions: TrackingFileDefinition[] = [
   },
 ]
 
-function hasTrackingFiles(basePath: string): boolean {
-  return trackingFileDefinitions.some((definition) => fs.existsSync(path.join(basePath, definition.path)))
+type EvolutionEvidence = {
+  definition: TrackingFileDefinition
+  sourcePath: string
+  content: string
+  stat: Stats | null
 }
 
-function resolveEvolutionBase(projectPath: string): string {
-  if (hasTrackingFiles(projectPath)) return projectPath
-
-  const nestedCompass = path.join(projectPath, 'apps', 'compass')
-  if (hasTrackingFiles(nestedCompass)) return nestedCompass
-
-  const cwd = process.cwd()
-  if (hasTrackingFiles(cwd)) return cwd
-
-  return projectPath
+function evidencePath(prefix: string, relativePath: string): string {
+  return prefix ? `${prefix}/${relativePath}` : relativePath
 }
 
-function displayPath(projectPath: string, fullPath: string, fallback: string): string {
-  const relative = path.relative(projectPath, fullPath)
-  if (!relative.startsWith('..') && !path.isAbsolute(relative)) {
-    return relative.replace(/\\/g, '/')
-  }
-  return fallback
+function hasTrackingEntries(projectPath: string, prefix: string): boolean {
+  return trackingFileDefinitions.some((definition) =>
+    resolveProjectSource(projectPath, evidencePath(prefix, definition.path)).entryExists,
+  )
 }
 
-function readFile(basePath: string, relativePath: string): string {
-  const full = path.join(basePath, relativePath)
-  if (!fs.existsSync(full)) return ''
-  return fs.readFileSync(full, 'utf8')
+function resolveEvolutionPrefix(projectPath: string): string {
+  if (hasTrackingEntries(projectPath, '')) return ''
+  if (hasTrackingEntries(projectPath, 'apps/compass')) return 'apps/compass'
+  return ''
 }
 
-function fileInfo(
+function readEvolutionEvidence(
   projectPath: string,
-  basePath: string,
+  prefix: string,
   definition: TrackingFileDefinition,
-): EvolutionTrackingFile {
-  const full = path.join(basePath, definition.path)
-  const exists = fs.existsSync(full)
-  const stat = exists ? fs.statSync(full) : null
+): EvolutionEvidence {
+  const sourcePath = evidencePath(prefix, definition.path)
+  const file = readResolvedProjectFile(resolveProjectSource(projectPath, sourcePath))
   return {
-    name: definition.name,
-    path: displayPath(projectPath, full, definition.path),
-    purpose: definition.purpose,
-    status: exists ? 'present' : 'missing',
-    lastUpdated: stat?.mtime.toISOString(),
+    definition,
+    sourcePath,
+    content: file?.content ?? '',
+    stat: file?.stat ?? null,
+  }
+}
+
+function fileInfo(evidence: EvolutionEvidence): EvolutionTrackingFile {
+  return {
+    name: evidence.definition.name,
+    path: evidence.sourcePath,
+    purpose: evidence.definition.purpose,
+    status: evidence.stat ? 'present' : 'missing',
+    lastUpdated: evidence.stat?.mtime.toISOString(),
   }
 }
 
@@ -201,16 +202,18 @@ function latestTimestamp(files: EvolutionTrackingFile[]): string {
 }
 
 export function buildEvolutionSnapshot(projectPath: string): AppEvolutionSnapshot {
-  const basePath = resolveEvolutionBase(projectPath)
-  const files = trackingFileDefinitions.map((definition) =>
-    fileInfo(projectPath, basePath, definition),
+  const prefix = resolveEvolutionPrefix(projectPath)
+  const evidence = trackingFileDefinitions.map((definition) =>
+    readEvolutionEvidence(projectPath, prefix, definition),
   )
-  const projectState = readFile(basePath, 'PROJECT_STATE.md')
-  const finalForm = readFile(basePath, 'APP_FINAL_FORM_GOAL.md')
-  const tracker = readFile(basePath, 'MOCKUP_COMPONENT_TRACKER.md')
-  const integrity = readFile(basePath, 'APP_INTEGRITY_REPORT.md')
-  const versionPlan = readFile(basePath, 'VERSION_EVOLUTION_PLAN.md')
-  const changelog = readFile(basePath, 'CHANGELOG_EVOLUTION.md')
+  const contentByPath = new Map(evidence.map((item) => [item.definition.path, item.content]))
+  const files = evidence.map(fileInfo)
+  const projectState = contentByPath.get('PROJECT_STATE.md') ?? ''
+  const finalForm = contentByPath.get('APP_FINAL_FORM_GOAL.md') ?? ''
+  const tracker = contentByPath.get('MOCKUP_COMPONENT_TRACKER.md') ?? ''
+  const integrity = contentByPath.get('APP_INTEGRITY_REPORT.md') ?? ''
+  const versionPlan = contentByPath.get('VERSION_EVOLUTION_PLAN.md') ?? ''
+  const changelog = contentByPath.get('CHANGELOG_EVOLUTION.md') ?? ''
 
   return {
     currentVersion: bulletValue(projectState, 'Current version') || 'Untracked',

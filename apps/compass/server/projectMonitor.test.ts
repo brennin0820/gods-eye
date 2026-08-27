@@ -12,6 +12,7 @@ import {
   readResolvedProjectFile,
   resolveProjectSource,
 } from './projectMonitor.ts'
+import { buildEvolutionSnapshot } from './evolutionTracker.ts'
 import type { FileCatalogEntry, ProjectSnapshot } from '../src/types/snapshot'
 
 const separator = '\u2014'
@@ -149,6 +150,80 @@ test('evidence reads return metadata from the opened descriptor after resolution
     assert.notEqual(opened.stat.size, resolved.stat?.size)
   } finally {
     fs.rmSync(projectPath, { recursive: true, force: true })
+  }
+})
+
+test('evolution evidence rejects outside-project symlinks without falling back to nested or cwd state', async () => {
+  const projectPath = makeProject()
+  const externalPath = fs.mkdtempSync(path.join(os.tmpdir(), 'compass-evolution-external-'))
+  let server: ViteDevServer | undefined
+  try {
+    writeProjectFile(externalPath, 'PROJECT_STATE.md', '- Current version: Foreign 9\n')
+    writeProjectFile(projectPath, 'apps/compass/PROJECT_STATE.md', '- Current version: Nested 2\n')
+    fs.symlinkSync(path.join(externalPath, 'PROJECT_STATE.md'), path.join(projectPath, 'PROJECT_STATE.md'))
+
+    const evolution = buildEvolutionSnapshot(projectPath)
+    const projectState = evolution.trackingFiles.find((file) => file.name === 'Project State')
+
+    assert.equal(evolution.currentVersion, 'Untracked')
+    assert.equal(projectState?.path, 'PROJECT_STATE.md')
+    assert.equal(projectState?.status, 'missing')
+
+    const api = await startApiServer()
+    server = api.server
+    const snapshot = await fetchJson<ProjectSnapshot>(
+      api.baseUrl,
+      `/api/project?${new URLSearchParams({ path: projectPath, label: 'Evolution Fixture' }).toString()}`,
+    )
+    assert.equal(snapshot.evolution.currentVersion, 'Untracked')
+    assert.equal(snapshot.evolution.trackingFiles.find((file) => file.name === 'Project State')?.status, 'missing')
+  } finally {
+    await server?.close()
+    fs.rmSync(projectPath, { recursive: true, force: true })
+    fs.rmSync(externalPath, { recursive: true, force: true })
+  }
+})
+
+test('evolution evidence preserves contained symlinks and canonical fallback precedence', () => {
+  const projectPath = makeProject()
+  const emptyProjectPath = makeProject()
+  try {
+    writeProjectFile(projectPath, '.evolution/PROJECT_STATE.md', '- Current version: Local 3\n- Current stage: Build\n')
+    writeProjectFile(projectPath, 'apps/compass/PROJECT_STATE.md', '- Current version: Nested competitor\n')
+    fs.symlinkSync('.evolution/PROJECT_STATE.md', path.join(projectPath, 'PROJECT_STATE.md'))
+
+    const evolution = buildEvolutionSnapshot(projectPath)
+    assert.equal(evolution.currentVersion, 'Local 3')
+    assert.equal(evolution.currentStage, 'Build')
+    const rootProjectState = evolution.trackingFiles.find((file) => file.name === 'Project State')
+    assert.equal(rootProjectState?.path, 'PROJECT_STATE.md')
+    assert.equal(rootProjectState?.status, 'present')
+
+    const emptyEvolution = buildEvolutionSnapshot(emptyProjectPath)
+    assert.equal(emptyEvolution.currentVersion, 'Untracked')
+    assert.ok(emptyEvolution.trackingFiles.every((file) => file.status === 'missing'))
+
+    writeProjectFile(emptyProjectPath, 'apps/compass/PROJECT_STATE.md', '- Current version: Nested 4\n')
+    const nestedEvolution = buildEvolutionSnapshot(emptyProjectPath)
+    assert.equal(nestedEvolution.currentVersion, 'Nested 4')
+    assert.equal(
+      nestedEvolution.trackingFiles.find((file) => file.name === 'Project State')?.path,
+      'apps/compass/PROJECT_STATE.md',
+    )
+
+    fs.mkdirSync(path.join(emptyProjectPath, 'PROJECT_STATE.md'))
+    const wrongTypeEvolution = buildEvolutionSnapshot(emptyProjectPath)
+    assert.equal(wrongTypeEvolution.currentVersion, 'Untracked')
+    assert.equal(wrongTypeEvolution.trackingFiles.find((file) => file.name === 'Project State')?.path, 'PROJECT_STATE.md')
+
+    fs.rmdirSync(path.join(emptyProjectPath, 'PROJECT_STATE.md'))
+    fs.symlinkSync('missing-project-state.md', path.join(emptyProjectPath, 'PROJECT_STATE.md'))
+    const brokenEvolution = buildEvolutionSnapshot(emptyProjectPath)
+    assert.equal(brokenEvolution.currentVersion, 'Untracked')
+    assert.equal(brokenEvolution.trackingFiles.find((file) => file.name === 'Project State')?.path, 'PROJECT_STATE.md')
+  } finally {
+    fs.rmSync(projectPath, { recursive: true, force: true })
+    fs.rmSync(emptyProjectPath, { recursive: true, force: true })
   }
 })
 
